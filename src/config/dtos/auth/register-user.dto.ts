@@ -1,14 +1,26 @@
 import Joi from "joi";
 import { getParamsErrorMessages, patternEmail } from "../..";
+import { Dto } from "../dto";
 
-export class RegisterUserDto {
-  private constructor(
-    public name: string,
-    public email: string,
-    public password: string
-  ) {}
+export interface UserDto {
+  name: string,
+  email: string,
+  password: string,
+  roles?: string[]
+}
 
-  static create(object: { [key: string]: any }): [string?, RegisterUserDto?] {
+export class RegisterUserDto extends Dto {
+
+  constructor(
+    public name?: string,
+    public email?: string,
+    public password?: string,
+    public roles?: string[]
+  ) {
+    super();
+  }
+
+  validate<UserDto>(object: { [key: string]: any }): [string?, UserDto?] {
     const validator = Joi.object({
       name: Joi.string()
         .required()
@@ -20,19 +32,23 @@ export class RegisterUserDto {
       password: Joi.string()
         .required()
         .messages(getParamsErrorMessages("user_password")),
+      roles: Joi.array()
+        .items(Joi.string().valid('USER_ROLE', 'ADMIN_ROLE',))
+        .messages(getParamsErrorMessages("user_roles")),
+      user: Joi.object()
+        .required()
+        .messages(getParamsErrorMessages("user_roles")),
     })
       .unknown(false)
       .messages(getParamsErrorMessages("user_object"))
 
-    const { error, value } = validator.validate(object);
+    const { error } = validator.validate(object);
 
     if (error) {
-      // console.log(error.details[0].type)
       return [error.message, undefined];
     } else {
-      const { name, email, password } = object;
-      // return [undefined, new RegisterUserDto(name, email, password) ]
-      return [undefined, object as RegisterUserDto];
+      const { name, email, password, roles } = object;
+      return [undefined, { name, email, password, roles } as UserDto];
     }
   }
 }

@@ -1,20 +1,24 @@
 import Joi from "joi";
-import { getParamsErrorMessages, patternEmail } from "../..";
+import { getParamsErrorMessages } from "../..";
 
 export class GetUserByIdDto {
   private constructor(public id: string) {}
 
-  static validate(id: string): [string?, GetUserByIdDto?] {
-    const validator = Joi.string()
-      .required()
-      .messages(getParamsErrorMessages("user_id"));
+  static validate(object: { [key: string]: any }): [string?, GetUserByIdDto?] {
+    const validator = Joi.object({
+          id: Joi.string()
+            .required()
+            .messages(getParamsErrorMessages("user_id")),
+        })
+          .unknown(false)
+          .messages(getParamsErrorMessages("user_object"));
 
-    const { error, value } = validator.validate(id);
+    const { error, value } = validator.validate(object);
 
     if (error && !value) {
       return [error.message, undefined];
     } else {
-      return [undefined, { id } as GetUserByIdDto];
+      return [undefined, { id: object.id } as GetUserByIdDto];
     }
   }
 }

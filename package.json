@@ -1,13 +1,14 @@
 {
-  "name": "login",
+  "name": "credit_manager_app",
   "version": "1.0.0",
-  "description": "Node auth project with clean architecture",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsnd --respawn --clear src/app.ts",
     "build": "rimraf ./dist && tsc",
-    "start": "npm run build && node dist/app.js"
+    "start": "npm run build && node dist/app.js",
+    "start-docker": "docker-compose up -d",
+    "dev-debbug": "node --inspect -r ts-node/register src/app.ts"
   },
   "author": "",
   "license": "ISC",
@@ -27,5 +28,7 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.1"
-  }
+  },
+  "keywords": [],
+  "description": ""
 }

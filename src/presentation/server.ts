@@ -17,7 +17,7 @@ export class Server {
     const {
       port = 3100,
       routes,
-      errorHandler = ErrorControllerHanlder.errorHandler,
+      errorHandler = new ErrorControllerHanlder().errorHandler,
     } = options;
     this.port = port;
     this.routes = routes;
@@ -29,7 +29,7 @@ export class Server {
     this.app.use(express.urlencoded({ extended: true }));
 
     this.app.use(this.routes);
-
+  
     this.app.use(this.errorHandler);
 
     this.app.listen(this.port, () => {

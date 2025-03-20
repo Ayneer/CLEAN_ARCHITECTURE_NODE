@@ -1,12 +1,13 @@
-import { GetUserByIdDto, LoginUserDto, RegisterUserDto } from "../../../config";
+import { DeleteOneUserByIdDto, GetUserByIdDto, LoginUserDto, UserDto } from "../../../config";
 import { UserEntity } from "../../";
 
 export abstract class AuthRepository {
-  constructor() {}
+  constructor() { }
 
-  abstract login(loginUserDto: LoginUserDto): Promise<UserEntity>;
-  abstract register(registerUserDto: RegisterUserDto): Promise<UserEntity>;
-
-  abstract getAllUsers(): Promise<UserEntity>;
-  abstract getOneUserById(getUserByIdDto: GetUserByIdDto): Promise<UserEntity>;
+  abstract login(loginUserDto: LoginUserDto): Promise<Partial<UserEntity>>;
+  abstract register(registerUserDto: UserDto): Promise<Partial<UserEntity>>;
+  abstract getAllUsers(): Promise<Partial<UserEntity>[]>;
+  abstract getOneUserById(getUserByIdDto: GetUserByIdDto): Promise<Partial<UserEntity>>;
+  abstract deleteAllUsers(): Promise<void>;
+  abstract deleteUserById(deleteUserByIdDto: DeleteOneUserByIdDto): Promise<Partial<UserEntity>[]>;
 }

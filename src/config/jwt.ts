@@ -6,7 +6,7 @@ const JWT_SEED = envs.JWT_SEED;
 export class JsonWebToken {
   static async generateJWT<T>(data: object | string, duration: number = 2): Promise<T | null>{
     return new Promise((resolve) => {
-      jwt.sign(data, JWT_SEED, { expiresIn: duration }, (error, token) => {
+      jwt.sign(data, JWT_SEED, { expiresIn: `${duration}h` }, (error, token) => {
         if (error) return resolve(null);
         resolve(token! as T);
       });

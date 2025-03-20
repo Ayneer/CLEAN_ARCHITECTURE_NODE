@@ -2,47 +2,27 @@ import { AuthRepository, UserEntity } from "../../domain";
 import {
   BcryptAdapter,
   CustomError,
+  DeleteOneUserByIdDto,
+  envs,
   GetUserByIdDto,
   LoginUserDto,
-  RegisterUserDto,
+  UserDto,
 } from "../../config";
 import { UserModel } from "../../drivers/data";
 import { UserMapper } from "./mappers";
 
-type hash = (password: string) => string;
-type compareHash = (password: string, hash: string) => boolean;
-type userMapper = (object: { [key: string]: any }) => UserEntity;
+type Hash = (password: string) => string;
+type CompareHash = (password: string, hash: string) => boolean;
+type UserMapperType = (object: { [key: string]: any }, fielsToDelete?: (keyof UserEntity)[]) => Partial<UserEntity>;
 
 export class AuthMongoDatasourceImpl implements AuthRepository {
   constructor(
-    private readonly hashPassword: hash = BcryptAdapter.generateBcryptHash,
-    private readonly compareHashPassword: compareHash = BcryptAdapter.compareBcryptHash,
-    private readonly userMapper: userMapper = UserMapper.userEntityFromObject
-  ) {}
+    private readonly hashPassword: Hash = BcryptAdapter.generateBcryptHash,
+    private readonly compareHashPassword: CompareHash = BcryptAdapter.compareBcryptHash,
+    private readonly userMapper: UserMapperType = UserMapper.userEntityFromObject
+  ) { }
 
-  getAllUsers(): Promise<UserEntity> {
-    throw new Error("Method not implemented.");
-  }
-
-  async getOneUserById(getUserByIdDto: GetUserByIdDto): Promise<UserEntity> {
-    try {
-      const { id } = getUserByIdDto;
-
-      //verificar el correo y comparar contraseña
-      const userExist = await UserModel.findOne({ id });
-      if (!userExist) throw CustomError.badRequest("User does not exist");
-
-      //mapear respuesta
-      return Promise.resolve(this.userMapper(userExist));
-    } catch (error) {
-      if (error instanceof CustomError) {
-        throw error;
-      }
-      throw CustomError.internalServerError();
-    }
-  }
-
-  async login(loginUserDto: LoginUserDto): Promise<UserEntity> {
+  async login(loginUserDto: LoginUserDto): Promise<Partial<UserEntity>> {
     try {
       const { email, password } = loginUserDto;
 
@@ -61,9 +41,9 @@ export class AuthMongoDatasourceImpl implements AuthRepository {
     }
   }
 
-  async register(registerUserDto: RegisterUserDto): Promise<UserEntity> {
+  async register(registerUserDto: UserDto): Promise<Partial<UserEntity>> {
     try {
-      const { name, email, password } = registerUserDto;
+      const { name, email, password, roles } = registerUserDto;
 
       //verificar el correo
       const emailExist = await UserModel.findOne({ email });
@@ -74,12 +54,73 @@ export class AuthMongoDatasourceImpl implements AuthRepository {
         name,
         email,
         password: this.hashPassword(password),
+        roles
       });
 
       await user.save();
       //mapear respuesta
 
       return Promise.resolve(this.userMapper(user));
+    } catch (error) {
+      if (error instanceof CustomError) {
+        throw error;
+      }
+      throw CustomError.internalServerError();
+    }
+  }
+
+  async getAllUsers(): Promise<Partial<UserEntity>[]> {
+    try {
+      //verificar el correo y comparar contraseña
+      const users = await UserModel.find({});
+
+      //mapear respuesta
+      return Promise.resolve(users.map(user => this.userMapper(user, ['password'])));
+    } catch (error) {
+      if (error instanceof CustomError) {
+        throw error;
+      }
+      throw CustomError.internalServerError();
+    }
+  }
+
+  async getOneUserById(getUserByIdDto: GetUserByIdDto): Promise<Partial<UserEntity>> {
+    try {
+      const { id } = getUserByIdDto;
+      //verificar el correo
+      const userExist = await UserModel.findOne({ _id: id });
+      if (!userExist) throw CustomError.badRequest("User does not exist");
+
+      //mapear respuesta
+      return Promise.resolve(this.userMapper(userExist));
+    } catch (error) {
+      if (error instanceof CustomError) {
+        throw error;
+      }
+      throw CustomError.internalServerError();
+    }
+  }
+
+  async deleteAllUsers(): Promise<void> {
+    try {
+      await UserModel.deleteMany({ email: { $ne: envs.ROOT_USER_EMAIL } });
+    } catch (error) {
+      if (error instanceof CustomError) {
+        throw error;
+      }
+      throw CustomError.internalServerError();
+    }
+  }
+
+  async deleteUserById(deleteUserByIdDto: DeleteOneUserByIdDto): Promise<Partial<UserEntity>[]> {
+    try {
+      const { id } = deleteUserByIdDto;
+
+      //verificar el correo
+      const userExist = await UserModel.findOneAndDelete({ _id: id, email: { $ne: envs.ROOT_USER_EMAIL } });
+      if (!userExist) throw CustomError.badRequest("User does not exist or does not allow delete");
+
+      return await this.getAllUsers();
     } catch (error) {
       if (error instanceof CustomError) {
         throw error;

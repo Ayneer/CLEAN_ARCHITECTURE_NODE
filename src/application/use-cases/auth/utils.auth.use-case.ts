@@ -4,5 +4,6 @@ export interface UserToken {
     name: string;
     email: string;
     id: string;
+    roles: string[]
   };
 }

@@ -1,12 +1,17 @@
-import { Request, Response } from "express";
-import { ErrorRequestHandler } from "express";
-import { CustomError } from "../../domain";
+import { Request, Response, ErrorRequestHandler } from "express";
+import { CustomError } from "../../config";
 
 export class ErrorControllerHanlder {
-    static errorHandler: ErrorRequestHandler = (err, req: Request, res: Response) => {
+
+    errorHandler: ErrorRequestHandler = (err, req: Request, res: Response, next) => {
         if (err instanceof CustomError) {
             res.status(err.statusCode).send({ error: err.message });
+        } else if (err && err.message) {
+            //logger error
+            console.error('error handler:', err.message)
+            throw CustomError.internalServerError();
         }
-        throw CustomError.internalServerError();
-  };
+        next();
+    };
+
 }

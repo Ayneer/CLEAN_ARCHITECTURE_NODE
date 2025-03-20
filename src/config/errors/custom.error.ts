@@ -1,3 +1,8 @@
+export interface ErrorModel {
+    statusCode: number;
+    message: string;
+}
+
 export class CustomError extends Error {
     constructor(
         public readonly statusCode: number,

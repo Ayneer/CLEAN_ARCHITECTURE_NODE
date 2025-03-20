@@ -20,11 +20,8 @@ export class LoginUserDto {
     const { error, value } = validator.validate(object);
 
     if (error && !value) {
-      // console.log(error.details[0].type)
       return [error.message, undefined];
     } else {
-      // const { email, password } = object;
-      // return [undefined, new RegisterUserDto(name, email, password) ]
       return [undefined, object as LoginUserDto];
     }
   }
