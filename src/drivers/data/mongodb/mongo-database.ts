@@ -2,23 +2,15 @@ import mongoose from "mongoose";
 import { UserModel } from "./models/user.model";
 import { BcryptAdapter, CustomError } from "../../../config";
 
-interface Options {
-  mongoUrl: string;
-  dbName: string;
-  rootUserName: string;
-  rootUserEmail: string;
-  rootUserPassword: string;
-}
-
 type Hash = (password: string) => string;
 
-export class MongoDatabase {
+export class MongoDatabase implements DataBase {
 
   constructor(
     private readonly hashPassword: Hash = BcryptAdapter.generateBcryptHash,
   ) { }
 
-  async connect(options: Options) {
+  async connect(options: MongoDatabaseOptionsInterface) {
     const { dbName, mongoUrl, rootUserEmail, rootUserName, rootUserPassword } = options;
     try {
 

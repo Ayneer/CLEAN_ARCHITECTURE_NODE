@@ -1,4 +1,4 @@
-import { AuthRepository, UserEntity } from "../../domain";
+import { AuthRepository, UserEntity } from "../../../../domain";
 import {
   BcryptAdapter,
   CustomError,
@@ -7,9 +7,9 @@ import {
   GetUserByIdDto,
   LoginUserDto,
   UserDto,
-} from "../../config";
-import { UserModel } from "../../drivers/data";
-import { UserMapper } from "./mappers";
+} from "../../../../config";
+import { UserModel } from "../../../../drivers/data";
+import { UserMapper } from "../../mappers";
 
 type Hash = (password: string) => string;
 type CompareHash = (password: string, hash: string) => boolean;

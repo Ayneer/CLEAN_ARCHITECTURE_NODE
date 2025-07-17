@@ -1,6 +1,17 @@
 import { NextFunction, Request, Response } from "express";
-import { GetAllUser, LoginUser, RegisterUser, GetOneUserById, DeleteAllUser, DeleteOneUserById } from "../../../application/use-cases/auth";
-import { DeleteOneUserByIdDto, GetUserByIdDto, LoginUserDto } from "../../../config";
+import {
+  GetAllUser,
+  LoginUser,
+  RegisterUser,
+  GetOneUserById,
+  DeleteAllUser,
+  DeleteOneUserById,
+} from "../../../domain/use-cases/auth";
+import {
+  DeleteOneUserByIdDto,
+  GetUserByIdDto,
+  LoginUserDto,
+} from "../../../config";
 
 export class AuthController {
   constructor(
@@ -9,13 +20,13 @@ export class AuthController {
     private readonly getAllUsersUseCase: GetAllUser,
     private readonly getOneUserByIdUseCase: GetOneUserById,
     private readonly deleteAllUsersUseCase: DeleteAllUser,
-    private readonly deleteOneUserByIdUseCase: DeleteOneUserById,
-  ) { }
+    private readonly deleteOneUserByIdUseCase: DeleteOneUserById
+  ) {}
 
   registerUser = (req: Request, res: Response, next: NextFunction) => {
     this.registerUserUseCase
       .excecute(req.body.registerUserDto!)
-      .then(data => res.status(200).json(data))
+      .then((data) => res.status(200).json(data))
       .catch((error) => next(error));
   };
 

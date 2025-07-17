@@ -1,11 +1,16 @@
 import { Router } from "express";
 import { AuthController } from "../../infrastucture/controllers/auth/controllers";
-import {
-  AuthMongoDatasourceImpl
-} from "../../infrastucture";
+import { AuthMongoDatasourceImpl } from "../../infrastucture";
 import { AuthMiddleware } from "../middlewares/auth.middleware";
 import { JsonWebToken, RegisterUserDto } from "../../config";
-import { DeleteAllUser, DeleteOneUserById, GetAllUser, GetOneUserById, LoginUser, RegisterUser } from "../../application/use-cases/auth";
+import {
+  DeleteAllUser,
+  DeleteOneUserById,
+  GetAllUser,
+  GetOneUserById,
+  LoginUser,
+  RegisterUser,
+} from "../../domain/use-cases/auth";
 
 export class AuthRoutes {
   static get routes(): Router {
@@ -14,7 +19,7 @@ export class AuthRoutes {
     //Impl of repository
     const authRepository = new AuthMongoDatasourceImpl();
 
-    //
+    //Utils
     const signToken = JsonWebToken.generateJWT;
     const validateToken = JsonWebToken.validateJWT;
 
@@ -27,7 +32,8 @@ export class AuthRoutes {
     const deleteOneUserByIdUseCase = new DeleteOneUserById(authRepository);
 
     //Middlewares
-    const { validateJwt, validateUserRegister, validateRoles } = new AuthMiddleware(authRepository, validateToken, new RegisterUserDto());
+    const { validateJwt, validateUserRegister, validateRoles } =
+      new AuthMiddleware(authRepository, validateToken, new RegisterUserDto());
 
     //Controller
     const controller = new AuthController(
@@ -40,11 +46,31 @@ export class AuthRoutes {
     );
 
     router.post("/login", controller.loginUser);
-    router.post("/register", [validateJwt, validateUserRegister], controller.registerUser);
-    router.get("/", [validateJwt, validateRoles(['SUPER_ADMIN', 'ADMIN_ROLE'])], controller.getAllUsers);
-    router.get("/:id", [validateJwt, validateRoles(['SUPER_ADMIN', 'ADMIN_ROLE'])], controller.getOneUsers); //get one user
-    router.delete("/", [validateJwt, validateRoles(['SUPER_ADMIN'])], controller.deleteAllUsers); //Delete all user
-    router.delete("/:id", [validateJwt, validateRoles(['SUPER_ADMIN'])], controller.deleteOneUserById); //Delete one user
+    router.post(
+      "/register",
+      [validateJwt, validateUserRegister],
+      controller.registerUser
+    );
+    router.get(
+      "/",
+      [validateJwt, validateRoles(["SUPER_ADMIN", "ADMIN_ROLE"])],
+      controller.getAllUsers
+    );
+    router.get(
+      "/:id",
+      [validateJwt, validateRoles(["SUPER_ADMIN", "ADMIN_ROLE"])],
+      controller.getOneUsers
+    ); //get one user
+    router.delete(
+      "/",
+      [validateJwt, validateRoles(["SUPER_ADMIN"])],
+      controller.deleteAllUsers
+    ); //Delete all user
+    router.delete(
+      "/:id",
+      [validateJwt, validateRoles(["SUPER_ADMIN"])],
+      controller.deleteOneUserById
+    ); //Delete one user
 
     return router;
   }
