@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import { UserModel } from "./models/user.model";
 import { BcryptAdapter, CustomError } from "../../../config";
+import { DataBase } from "../../interfaces/database_interface";
+import { MongoDatabaseOptionsInterface } from "../../interfaces/mongo_database_options_interface";
 
 type Hash = (password: string) => string;
 

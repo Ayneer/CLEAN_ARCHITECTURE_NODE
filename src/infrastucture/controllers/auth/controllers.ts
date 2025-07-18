@@ -12,6 +12,7 @@ import {
   GetUserByIdDto,
   LoginUserDto,
 } from "../../../config";
+import { UserTokenModel } from "../../../models/user_token_model";
 
 export class AuthController {
   constructor(
@@ -25,8 +26,8 @@ export class AuthController {
 
   registerUser = (req: Request, res: Response, next: NextFunction) => {
     this.registerUserUseCase
-      .excecute(req.body.registerUserDto!)
-      .then((data) => res.status(200).json(data))
+      .excecute(req.body.registerUserDto)
+      .then((data: UserTokenModel) => res.status(200).json(data))
       .catch((error) => next(error));
   };
 

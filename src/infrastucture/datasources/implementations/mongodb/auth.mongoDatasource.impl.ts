@@ -6,14 +6,15 @@ import {
   envs,
   GetUserByIdDto,
   LoginUserDto,
-  UserDto,
 } from "../../../../config";
 import { UserModel } from "../../../../drivers/data";
 import { UserMapper } from "../../mappers";
-
-type Hash = (password: string) => string;
-type CompareHash = (password: string, hash: string) => boolean;
-type UserMapperType = (object: { [key: string]: any }, fielsToDelete?: (keyof UserEntity)[]) => Partial<UserEntity>;
+import { UserDto } from "../../../../models";
+import {
+  Hash,
+  CompareHash,
+  UserMapperType,
+} from "../../../../utils/types_util";
 
 export class AuthMongoDatasourceImpl implements AuthRepository {
   constructor(
@@ -41,9 +42,9 @@ export class AuthMongoDatasourceImpl implements AuthRepository {
     }
   }
 
-  async register(registerUserDto: UserDto): Promise<Partial<UserEntity>> {
+  async register(registerUserDto: UserDto): Promise<UserEntity> {
     try {
-      const { name, email, password, roles } = registerUserDto;
+      const { name, email, password, role } = registerUserDto;
 
       //verificar el correo
       const emailExist = await UserModel.findOne({ email });
@@ -54,7 +55,7 @@ export class AuthMongoDatasourceImpl implements AuthRepository {
         name,
         email,
         password: this.hashPassword(password),
-        roles
+        role
       });
 
       await user.save();

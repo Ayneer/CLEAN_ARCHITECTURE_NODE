@@ -1,6 +1,7 @@
-interface ServerInterface {
+import { DataBase } from "../../drivers/interfaces/database_interface";
+
+export interface ServerInterface {
     port: number;
-    routes: any;
     errorHandler?: any;
     database: DataBase;
 }

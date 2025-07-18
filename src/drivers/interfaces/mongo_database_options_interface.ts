@@ -1,4 +1,4 @@
-interface MongoDatabaseOptionsInterface {
+export interface MongoDatabaseOptionsInterface {
   mongoUrl: string;
   dbName: string;
   rootUserName: string;
