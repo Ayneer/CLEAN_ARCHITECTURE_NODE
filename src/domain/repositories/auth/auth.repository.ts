@@ -1,5 +1,6 @@
-import { DeleteOneUserByIdDto, GetUserByIdDto, LoginUserDto, UserDto } from "../../../config";
+import { DeleteOneUserByIdDto, GetUserByIdDto, LoginUserDto } from "../../../config";
 import { UserEntity } from "../../";
+import { UserDto } from "../../../models";
 
 export abstract class AuthRepository {
   constructor() { }

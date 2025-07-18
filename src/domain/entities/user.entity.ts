@@ -1,12 +1,3 @@
-interface UserEntityProps {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-  img?: string;
-}
-
 export class UserEntity {
   id: string;
   name: string;
@@ -15,7 +6,7 @@ export class UserEntity {
   role: string;
   img?: string;
   
-  constructor(props: UserEntityProps) {
+  constructor(props: UserEntity) {
     this.id = props.id;
     this.name = props.name;
     this.email = props.email;

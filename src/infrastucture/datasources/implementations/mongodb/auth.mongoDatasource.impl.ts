@@ -6,14 +6,15 @@ import {
   envs,
   GetUserByIdDto,
   LoginUserDto,
-  UserDto,
 } from "../../../../config";
 import { UserModel } from "../../../../drivers/data";
 import { UserMapper } from "../../mappers";
-
-type Hash = (password: string) => string;
-type CompareHash = (password: string, hash: string) => boolean;
-type UserMapperType = (object: { [key: string]: any }, fielsToDelete?: (keyof UserEntity)[]) => UserEntity;
+import { UserDto } from "../../../../models";
+import {
+  Hash,
+  CompareHash,
+  UserMapperType,
+} from "../../../../utils/types_util";
 
 export class AuthMongoDatasourceImpl implements AuthRepository {
   constructor(

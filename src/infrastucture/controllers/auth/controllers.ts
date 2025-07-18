@@ -12,7 +12,7 @@ import {
   GetUserByIdDto,
   LoginUserDto,
 } from "../../../config";
-import { UserTokenModel } from "../../../domain/models/user_token_model";
+import { UserTokenModel } from "../../../models/user_token_model";
 
 export class AuthController {
   constructor(

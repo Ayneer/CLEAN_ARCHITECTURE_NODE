@@ -2,7 +2,7 @@ import { JsonWebToken } from "../../../config";
 import { LoginUserDto, RegisterUserDto } from "../../../config/dtos/auth";
 import { CustomError } from "../../../config/errors/custom.error";
 import { AuthRepository } from "../../../domain/repositories/auth/auth.repository";
-import { UserTokenModel } from "../../models/user_token_model";
+import { UserTokenModel } from "../../../models/user_token_model";
 
 interface LoginUseCase {
   excecute(loginUserDto: LoginUserDto): Promise<UserTokenModel>;

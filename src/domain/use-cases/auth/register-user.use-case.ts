@@ -1,10 +1,10 @@
-import { RegisterUserDto, UserDto } from "../../../config/dtos/auth";
 import { CustomError } from "../../../config/errors/custom.error";
 import { AuthRepository } from "../../../domain/repositories/auth/auth.repository";
 import { SignToken } from "../../../utils/types_util";
 import { UserEntity } from "../../entities/user.entity";
 import { UseCaseInterface } from "../../interfaces/use_case_interface";
-import { UserTokenModel } from "../../models/user_token_model";
+import { UserTokenModel } from "../../../models/user_token_model";
+import { UserDto } from "../../../models";
 
 export class RegisterUser implements UseCaseInterface<UserDto, UserTokenModel> {
   constructor(

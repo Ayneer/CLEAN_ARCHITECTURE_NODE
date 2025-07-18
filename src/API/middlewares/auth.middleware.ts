@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from "express";
-import { CustomError, ErrorModel, UserDto } from "../../config";
+import { CustomError, ErrorModel } from "../../config";
 import { AuthRepository } from "../../domain/repositories/auth/auth.repository";
 import { UserEntity } from "../../domain";
 import { Dto } from "../../config/dtos/dto";
-
-type SignToken = <T>(token: string) => Promise<T | null>;
+import { Token } from "../../utils/types_util";
+import { UserDto } from "../../models";
 
 export class AuthMiddleware {
   constructor(
     private readonly authRepository: AuthRepository,
-    private readonly validateToken: SignToken,
-    private readonly registerUserDto: Dto
+    private readonly validateToken: Token,
+    private readonly registerUserDto: Dto<UserDto>
   ) {}
 
   validateJwt = async (req: Request, res: Response, next: NextFunction) => {
@@ -58,7 +58,7 @@ export class AuthMiddleware {
     next: NextFunction
   ) => {
     try {
-      const [error, detail, registerUserDto] = this.registerUserDto.validate<UserDto>(
+      const [error, detail, registerUserDto] = this.registerUserDto.validate(
         req.body
       );
       if (error) {
@@ -99,7 +99,7 @@ export class AuthMiddleware {
     next: NextFunction
   ) => {
     try {
-      const [error, detail, registerUserDto] = this.registerUserDto.validate<UserDto>(
+      const [error, detail, registerUserDto] = this.registerUserDto.validate(
         req.body
       );
 

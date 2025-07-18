@@ -1,4 +1,3 @@
-export abstract class Dto {
-    constructor() { };
-    abstract validate<T>(object: { [key: string]: any }): [string?, string?, T?];
+export abstract class Dto<T> {
+  abstract validate(object: { [key: string]: any }): [string?, string?, T?];
 }

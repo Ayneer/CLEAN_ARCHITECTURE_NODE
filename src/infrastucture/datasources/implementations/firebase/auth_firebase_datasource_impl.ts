@@ -21,16 +21,14 @@ import {
   envs,
   GetUserByIdDto,
   LoginUserDto,
-  UserDto,
 } from "../../../../config";
 import { firebaseCollections } from "../../../../drivers/data/firebase/firebase_collections";
-
-type Hash = (password: string) => string;
-type CompareHash = (password: string, hash: string) => boolean;
-type UserMapperType = (
-  object: { [key: string]: any },
-  fielsToDelete?: (keyof UserEntity)[]
-) => UserEntity;
+import { UserDto } from "../../../../models";
+import {
+  Hash,
+  CompareHash,
+  UserMapperType,
+} from "../../../../utils/types_util";
 
 export class AuthFirebaseDatasourceImpl implements AuthRepository {
   private userCollection: CollectionReference<DocumentData, DocumentData>;
@@ -70,7 +68,9 @@ export class AuthFirebaseDatasourceImpl implements AuthRepository {
       });
 
       const newUser = await getDoc(doc(this.userCollection, snapShot.id));
-      return this.userMapper({ ...newUser.data(), id: snapShot.id }, ['password']);
+      return this.userMapper({ ...newUser.data(), id: snapShot.id }, [
+        "password",
+      ]);
     } catch (error) {
       if (error instanceof CustomError) {
         throw error;

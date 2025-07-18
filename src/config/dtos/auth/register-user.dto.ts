@@ -1,21 +1,14 @@
 import Joi from "joi";
 import { getParamsErrorMessages, patternEmail } from "../..";
 import { Dto } from "../dto";
+import { UserDto } from "../../../models";
 
-export interface UserDto {
-  name: string;
-  email: string;
-  password: string;
-  role?: string;
-  img?: string;
-}
-
-export class RegisterUserDto extends Dto {
+export class RegisterUserDto extends Dto<UserDto> {
   constructor() {
     super();
   }
 
-  validate<UserDto>(object: {
+  validate(object: {
     [key: string]: any;
   }): [string?, string?, UserDto?] {
     const validator = Joi.object({
