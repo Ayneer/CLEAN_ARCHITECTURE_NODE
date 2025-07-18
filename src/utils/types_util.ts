@@ -1,0 +1,1 @@
+export type SignToken = (data: object | string, duration?: number) => Promise<string | null>;

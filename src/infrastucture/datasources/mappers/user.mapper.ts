@@ -3,45 +3,52 @@ import { CustomError } from "../../../config";
 import { UserEntity } from "../../../domain";
 
 export class UserMapper {
-    static userEntityFromObject(object: {[key: string]: any}, fielsToDelete: (keyof UserEntity)[] = []): Partial<UserEntity>{
-        const { id, _id, name, email, password, roles } = object;
-        
-        if(!id || !_id) throw CustomError.badRequest('Missing id');
-        if(!name) throw CustomError.badRequest('Missing name');
-        if(!email) throw CustomError.badRequest('Missing email');
-        if(!password) throw CustomError.badRequest('Missing password');
-        if(!roles || typeof roles !== 'object' || roles.length <= 0) throw CustomError.badRequest('Missing roles');
-        
-        const newUser: Partial<UserEntity> = new UserEntity(
-            id || _id,
-            name,
-            email,
-            password,
-            roles
-        );
+  static userEntityFromObject(
+    object: { [key: string]: any },
+    fielsToDelete: (keyof UserEntity)[] = []
+  ): UserEntity {
+    const { id, _id, name, email, password, role, img } = object;
 
-        fielsToDelete.forEach(field => {
-            delete newUser[field];
-        });
+    if (!id && !_id) throw CustomError.badRequest("Missing id");
+    if (!name) throw CustomError.badRequest("Missing name");
+    if (!email) throw CustomError.badRequest("Missing email");
+    if (!password) throw CustomError.badRequest("Missing password");
+    if (!role) throw CustomError.badRequest("Missing role");
+    if (!img) throw CustomError.badRequest("Missing img");
 
-        return newUser;
-    }
+    const newUser: UserEntity = new UserEntity({
+      id: id || _id,
+      name,
+      email,
+      password,
+      role,
+      img,
+    });
 
-    static userEntityWitouPasswordFromObject(object: {[key: string]: any}): UserEntity{
-        const { id, _id, name, email, password, roles } = object;
-        
-        if(!id || !_id) throw CustomError.badRequest('Missing id');
-        if(!name) throw CustomError.badRequest('Missing name');
-        if(!email) throw CustomError.badRequest('Missing email');
-        if(!password) throw CustomError.badRequest('Missing password');
-        if(!roles || typeof roles !== 'object' || roles.length <= 0) throw CustomError.badRequest('Missing roles');
-        
-        return new UserEntity(
-            id || _id,
-            name,
-            email,
-            password,
-            roles
-        );
-    }
+    fielsToDelete.forEach((field) => {
+      delete newUser[field];
+    });
+
+    return newUser;
+  }
+
+  static userEntityWitouPasswordFromObject(object: {
+    [key: string]: any;
+  }): UserEntity {
+    const { id, _id, name, email, password, role } = object;
+
+    if (!id || !_id) throw CustomError.badRequest("Missing id");
+    if (!name) throw CustomError.badRequest("Missing name");
+    if (!email) throw CustomError.badRequest("Missing email");
+    if (!password) throw CustomError.badRequest("Missing password");
+    if (!role) throw CustomError.badRequest("Missing role");
+
+    return new UserEntity({
+      id: id || _id,
+      name,
+      email,
+      password,
+      role,
+    });
+  }
 }

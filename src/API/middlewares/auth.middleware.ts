@@ -11,52 +11,79 @@ export class AuthMiddleware {
     private readonly authRepository: AuthRepository,
     private readonly validateToken: SignToken,
     private readonly registerUserDto: Dto
-  ) { }
+  ) {}
 
   validateJwt = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const header = req.header("Authorization");
 
       if (!header || !header.startsWith("Bearer "))
-        throw CustomError.unauthorized("You do not have permition to see this - Bearer");
+        throw CustomError.unauthorized(
+          "You do not have permition to see this - Bearer"
+        );
 
       const token = header.split(" ").at(1)?.trim() ?? "";
       const data = await this.validateToken<{ id: string }>(token);
       if (!token || !data || !data.id)
-        throw CustomError.unauthorized("You do not have permition to see this - token");
+        throw CustomError.unauthorized(
+          "You do not have permition to see this - token"
+        );
 
       const user = await this.authRepository.getOneUserById({ id: data.id });
 
       if (!user)
-        throw CustomError.unauthorized("You do not have permition to see this - user");
+        throw CustomError.unauthorized(
+          "You do not have permition to see this - user"
+        );
 
       req.body.user = user;
 
       next();
     } catch (error) {
       if (error instanceof CustomError) {
-        next(CustomError.unauthorized("You do not have permition to see this - user"));
+        next(
+          CustomError.unauthorized(
+            "You do not have permition to see this - user"
+          )
+        );
       } else {
         next(error);
       }
     }
   };
 
-  validateUserRegister = async (req: Request, res: Response, next: NextFunction) => {
+  validateUserRegisterByAdmin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const [error, registerUserDto] = this.registerUserDto.validate<UserDto>(req.body);
+      const [error, detail, registerUserDto] = this.registerUserDto.validate<UserDto>(
+        req.body
+      );
       if (error) {
         res.status(400).json(error);
       }
 
       const userLogged = req.body.user as Partial<UserEntity>;
 
-      if ((
-        (registerUserDto?.roles?.some(role => ['ADMIN_ROLE'].includes(role))) && !userLogged?.role?.includes('SUPER_ADMIN') ||
-        (registerUserDto?.roles?.some(role => ['USER_ROLE'].includes(role)) || !registerUserDto?.roles) && !userLogged?.role?.some(role => ['ADMIN_ROLE', 'SUPER_ADMIN'].includes(role))
-      )) {
-        throw CustomError.unauthorized("You do not have permition to see this - Create User");
-      }
+      // if (
+      //   (registerUserDto?.roles?.some((role) =>
+      //     ["ADMIN_ROLE"].includes(role)
+      //   ) &&
+      //     !userLogged.role?.includes("SUPER_ADMIN")) ||
+      //   ((registerUserDto?.roles?.some((role) =>
+      //     ["USER_ROLE"].includes(role)
+      //   ) ||
+      //     !registerUserDto?.roles) &&
+      //     !userLogged.role?.some((role) =>
+      //       ["ADMIN_ROLE", "SUPER_ADMIN"].includes(role)
+      //     ))
+      // ) {
+      //   throw CustomError.unauthorized(
+      //     "You do not have permition to see this - Create User"
+      //   );
+      // }
 
       req.body.registerUserDto = registerUserDto;
 
@@ -66,14 +93,36 @@ export class AuthMiddleware {
     }
   };
 
-  validateRoles = (allowedRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
-    const userLogged = req.body.user as Partial<UserEntity>;
+  validateUserRegister = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const [error, detail, registerUserDto] = this.registerUserDto.validate<UserDto>(
+        req.body
+      );
 
-    if (userLogged.role?.some(role => allowedRoles.includes(role))) {
+      if (error) {
+        throw CustomError.badRequest(error, detail);
+      }
+
+      req.body.registerUserDto = registerUserDto;
       next();
-    } else {
-      next(CustomError.unauthorized("You do not have permition to do this"));
+    } catch (error) {
+      next(error);
     }
-
   };
+
+  validateRoles =
+    (allowedRoles: string[]) =>
+    async (req: Request, res: Response, next: NextFunction) => {
+      const userLogged = req.body.user as Partial<UserEntity>;
+
+      if (allowedRoles.some((role) => userLogged.role?.includes(role))) {
+        next();
+      } else {
+        next(CustomError.unauthorized("You do not have permition to do this"));
+      }
+    };
 }

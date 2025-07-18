@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { AuthController } from "../../infrastucture/controllers/auth/controllers";
-import { AuthMongoDatasourceImpl } from "../../infrastucture";
+import { AuthFirebaseDatasourceImpl } from "../../infrastucture";
 import { AuthMiddleware } from "../middlewares/auth.middleware";
 import { JsonWebToken, RegisterUserDto } from "../../config";
 import {
@@ -17,7 +17,7 @@ export class AuthRoutes {
     const router = Router();
 
     //Impl of repository
-    const authRepository = new AuthMongoDatasourceImpl();
+    const authRepository = new AuthFirebaseDatasourceImpl();
 
     //Utils
     const signToken = JsonWebToken.generateJWT;
@@ -32,8 +32,16 @@ export class AuthRoutes {
     const deleteOneUserByIdUseCase = new DeleteOneUserById(authRepository);
 
     //Middlewares
-    const { validateJwt, validateUserRegister, validateRoles } =
-      new AuthMiddleware(authRepository, validateToken, new RegisterUserDto());
+    const {
+      validateJwt,
+      validateUserRegister,
+      validateRoles,
+      validateUserRegisterByAdmin,
+    } = new AuthMiddleware(
+      authRepository,
+      validateToken,
+      new RegisterUserDto()
+    );
 
     //Controller
     const controller = new AuthController(
@@ -47,10 +55,11 @@ export class AuthRoutes {
 
     router.post("/login", controller.loginUser);
     router.post(
-      "/register",
-      [validateJwt, validateUserRegister],
+      "/register-by-admin",
+      [validateJwt, validateUserRegisterByAdmin],
       controller.registerUser
     );
+    router.post("/register", [validateUserRegister], controller.registerUser);
     router.get(
       "/",
       [validateJwt, validateRoles(["SUPER_ADMIN", "ADMIN_ROLE"])],

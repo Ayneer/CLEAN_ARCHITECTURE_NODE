@@ -1,35 +1,33 @@
 import { RegisterUserDto, UserDto } from "../../../config/dtos/auth";
 import { CustomError } from "../../../config/errors/custom.error";
 import { AuthRepository } from "../../../domain/repositories/auth/auth.repository";
-import { UserToken } from "./utils.auth.use-case";
+import { SignToken } from "../../../utils/types_util";
+import { UserEntity } from "../../entities/user.entity";
+import { UseCaseInterface } from "../../interfaces/use_case_interface";
+import { UserTokenModel } from "../../models/user_token_model";
 
-interface RegisterUserUseCase {
-  excecute(registerUserDto: UserDto): Promise<UserToken>;
-}
-
-type SignToken = (data: object | string, duration?: number) => Promise<string | null>;
-
-export class RegisterUser implements RegisterUserUseCase {
+export class RegisterUser implements UseCaseInterface<UserDto, UserTokenModel> {
   constructor(
     private readonly authRepository: AuthRepository,
     private readonly signToken: SignToken
-  ) { }
+  ) {}
 
-  async excecute(registerUserDto: UserDto): Promise<UserToken> {
-    const user = await this.authRepository.register(registerUserDto!);
+  async excecute(data: UserDto): Promise<UserTokenModel> {
+    const user = await this.authRepository.register(data);
     const token = await this.signToken({ id: user.id });
 
-    if (!token)
-      throw CustomError.internalServerError();
+    if (!token) throw CustomError.internalServerError();
 
-    return {
-      user: {
-        name: user.name!,
-        email: user.email!,
-        id: user.id!,
-        roles: user.role!
-      },
+    return new UserTokenModel({
       token,
-    };
+      user: new UserEntity({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        password: user.password,
+        img: user.img,
+      })
+    });
   }
 }
