@@ -22,24 +22,32 @@ export class AuthMongoDatasourceImpl implements AuthRepository {
     private readonly compareHashPassword: CompareHash = BcryptAdapter.compareBcryptHash,
     private readonly userMapper: UserMapperType = UserMapper.userEntityFromObject
   ) { }
+  
+  getUserByEmail(email: string): Promise<UserEntity | null> {
+    throw new Error("Method not implemented.");
+  }
+  createUser(registerUserDto: UserDto, fielsToDelete?: (keyof UserEntity)[]): Promise<UserEntity> {
+    throw new Error("Method not implemented.");
+  }
 
   async login(loginUserDto: LoginUserDto): Promise<Partial<UserEntity>> {
-    try {
-      const { email, password } = loginUserDto;
+    // try {
+    //   const { email, password } = loginUserDto;
 
-      //verificar el correo y comparar contraseña
-      const userExist = await UserModel.findOne({ email });
-      if (!userExist || !this.compareHashPassword(password, userExist.password))
-        throw CustomError.badRequest("Wrong credentials");
+    //   //verificar el correo y comparar contraseña
+    //   const userExist = await UserModel.findOne({ email });
+    //   if (!userExist || !this.compareHashPassword(password, userExist.password))
+    //     throw CustomError.badRequest("Wrong credentials");
 
-      //mapear respuesta
-      return Promise.resolve(this.userMapper(userExist));
-    } catch (error) {
-      if (error instanceof CustomError) {
-        throw error;
-      }
-      throw CustomError.internalServerError();
-    }
+    //   //mapear respuesta
+    //   return Promise.resolve(this.userMapper(userExist));
+    // } catch (error) {
+    //   if (error instanceof CustomError) {
+    //     throw error;
+    //   }
+    //   throw CustomError.internalServerError();
+    // }
+    throw CustomError.internalServerError();
   }
 
   async register(registerUserDto: UserDto): Promise<UserEntity> {

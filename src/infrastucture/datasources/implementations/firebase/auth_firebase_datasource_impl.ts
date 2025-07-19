@@ -15,7 +15,6 @@ import {
 import { FirebaseDatabase } from "../../../../drivers/data/firebase/firebase_database";
 import { UserMapper } from "../../mappers";
 import {
-  BcryptAdapter,
   CustomError,
   DeleteOneUserByIdDto,
   envs,
@@ -32,12 +31,9 @@ import {
 
 export class AuthFirebaseDatasourceImpl implements AuthRepository {
   private userCollection: CollectionReference<DocumentData, DocumentData>;
+  private userMapper: UserMapperType = UserMapper.userEntityFromObject;
 
-  constructor(
-    private readonly hashPassword: Hash = BcryptAdapter.generateBcryptHash,
-    private readonly compareHashPassword: CompareHash = BcryptAdapter.compareBcryptHash,
-    private readonly userMapper: UserMapperType = UserMapper.userEntityFromObject
-  ) {
+  constructor() {
     this.userCollection = collection(
       FirebaseDatabase.db,
       firebaseCollections.users
@@ -48,36 +44,35 @@ export class AuthFirebaseDatasourceImpl implements AuthRepository {
     throw new Error("Method not implemented.");
   }
 
+  async getUserByEmail(
+    email: string,
+    fielsToDelete?: (keyof UserEntity)[]
+  ): Promise<UserEntity | null> {
+    const snapShot = await getDocs(
+      query(this.userCollection, where("email", "==", email))
+    );
+    if (snapShot.docs.length === 0) return null;
+    const userDoc = snapShot.docs[0];
+    return this.userMapper(
+      { ...userDoc.data(), id: userDoc.id },
+      fielsToDelete
+    );
+  }
+
+  async createUser(
+    registerUserDto: UserDto,
+    fielsToDelete?: (keyof UserEntity)[]
+  ): Promise<UserEntity> {
+    const snapShot = await addDoc(this.userCollection, registerUserDto);
+    const newUser = await getDoc(doc(this.userCollection, snapShot.id));
+    return this.userMapper(
+      { ...newUser.data(), id: snapShot.id },
+      fielsToDelete
+    );
+  }
+
   async register(registerUserDto: UserDto): Promise<UserEntity> {
-    try {
-      const { name, email, password, role, img } = registerUserDto;
-      //verificar el correo
-      const emailExist = await getDocs(
-        query(this.userCollection, where("email", "==", email))
-      );
-
-      if (emailExist.docs.length > 0)
-        throw CustomError.badRequest("User already exists");
-
-      const snapShot = await addDoc(this.userCollection, {
-        name,
-        email,
-        password: this.hashPassword(password),
-        role: role ?? "ADMIN_ROLE",
-        img: img ?? "DEFAULT_IMG_URL",
-      });
-
-      const newUser = await getDoc(doc(this.userCollection, snapShot.id));
-      return this.userMapper({ ...newUser.data(), id: snapShot.id }, [
-        "password",
-      ]);
-    } catch (error) {
-      if (error instanceof CustomError) {
-        throw error;
-      }
-      console.error(error);
-      throw CustomError.internalServerError();
-    }
+    throw CustomError.internalServerError();
   }
 
   async getAllUsers(): Promise<Partial<UserEntity>[]> {

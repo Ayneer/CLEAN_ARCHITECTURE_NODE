@@ -2,6 +2,7 @@ import Joi from "joi";
 import { getParamsErrorMessages, patternEmail } from "../..";
 import { Dto } from "../dto";
 import { UserDto } from "../../../models";
+import { DtoUtil } from "../utils/dto_util";
 
 export class RegisterUserDto extends Dto<UserDto> {
   constructor() {
@@ -35,26 +36,16 @@ export class RegisterUserDto extends Dto<UserDto> {
     if (error) {
       return [
         error.message,
-        this.getErrorDetail(error.message, error.details[0].path),
+        DtoUtil.getErrorDetail(error.message, error.details[0].path),
         undefined,
       ];
     } else {
-      const { name, email, password, roles, img } = object;
+      const { name, email, password, role, img } = object;
       return [
         undefined,
         undefined,
-        { name, email, password, roles, img } as UserDto,
+        new UserDto({ name, email, password, role, img }),
       ];
     }
-  }
-
-  private getErrorDetail(error: string, value: (string | number)[]): string {
-    if (error.includes("required")) {
-      return `${value} field is required`;
-    }
-    if (error.includes("format_error")) {
-      return `${value} field has a bad format`;
-    }
-    return "There ara some value whit error or is required in the request";
   }
 }

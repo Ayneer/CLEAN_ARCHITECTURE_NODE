@@ -10,7 +10,6 @@ import {
 import {
   DeleteOneUserByIdDto,
   GetUserByIdDto,
-  LoginUserDto,
 } from "../../../config";
 import { UserTokenModel } from "../../../models/user_token_model";
 
@@ -32,12 +31,8 @@ export class AuthController {
   };
 
   loginUser = (req: Request, res: Response, next: NextFunction) => {
-    const [error, loginUserDto] = LoginUserDto.create(req.body);
-    if (error) {
-      res.status(400).json(error);
-    }
     this.loginUserUseCase
-      .excecute(loginUserDto!)
+      .excecute(req.body.userLoginDtoModel)
       .then((user) => res.json(user))
       .catch((error) => next(error));
   };

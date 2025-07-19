@@ -1,14 +1,21 @@
 import Joi from "joi";
 import { getParamsErrorMessages, patternEmail } from "../..";
+import { Dto } from "../dto";
+import { UserLoginDtoModel } from "../../../models/dto";
+import { DtoUtil } from "../utils/dto_util";
 
-export class LoginUserDto {
-  private constructor(public email: string, public password: string) {}
+export class LoginUserDto extends Dto<UserLoginDtoModel> {
+  constructor() {
+    super();
+  }
 
-  static create(object: { [key: string]: any }): [string?, LoginUserDto?] {
+  validate(object: {
+    [key: string]: any;
+  }): [string?, string?, UserLoginDtoModel?] {
     const validator = Joi.object({
       email: Joi.string()
-        .regex(patternEmail)
         .required()
+        .regex(patternEmail)
         .messages(getParamsErrorMessages("user_email")),
       password: Joi.string()
         .required()
@@ -17,12 +24,22 @@ export class LoginUserDto {
       .unknown(false)
       .messages(getParamsErrorMessages("user_object"));
 
-    const { error, value } = validator.validate(object);
+    const { error } = validator.validate(object);
 
-    if (error && !value) {
-      return [error.message, undefined];
+    if (error) {
+      return [
+        error.message,
+        DtoUtil.getErrorDetail(error.message, error.details[0].path),
+      ];
     } else {
-      return [undefined, object as LoginUserDto];
+      return [
+        undefined,
+        undefined,
+        new UserLoginDtoModel({
+          email: object.email,
+          password: object.password,
+        }),
+      ];
     }
   }
 }

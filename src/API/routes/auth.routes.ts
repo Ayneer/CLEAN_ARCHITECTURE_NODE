@@ -2,7 +2,7 @@ import { Router } from "express";
 import { AuthController } from "../../infrastucture/controllers/auth/controllers";
 import { AuthFirebaseDatasourceImpl } from "../../infrastucture";
 import { AuthMiddleware } from "../middlewares/auth.middleware";
-import { JsonWebToken, RegisterUserDto } from "../../config";
+import { JsonWebToken, LoginUserDto, RegisterUserDto } from "../../config";
 import {
   DeleteAllUser,
   DeleteOneUserById,
@@ -37,10 +37,12 @@ export class AuthRoutes {
       validateUserRegister,
       validateRoles,
       validateUserRegisterByAdmin,
+      validateUserLogin,
     } = new AuthMiddleware(
       authRepository,
       validateToken,
-      new RegisterUserDto()
+      new RegisterUserDto(),
+      new LoginUserDto()
     );
 
     //Controller
@@ -53,13 +55,13 @@ export class AuthRoutes {
       deleteOneUserByIdUseCase
     );
 
-    router.post("/login", controller.loginUser);
+    router.post("/register", [validateUserRegister], controller.registerUser);
+    router.post("/login", [validateUserLogin], controller.loginUser);
     router.post(
       "/register-by-admin",
       [validateJwt, validateUserRegisterByAdmin],
       controller.registerUser
     );
-    router.post("/register", [validateUserRegister], controller.registerUser);
     router.get(
       "/",
       [validateJwt, validateRoles(["SUPER_ADMIN", "ADMIN_ROLE"])],

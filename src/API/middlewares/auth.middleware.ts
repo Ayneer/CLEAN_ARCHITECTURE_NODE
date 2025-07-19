@@ -4,13 +4,14 @@ import { AuthRepository } from "../../domain/repositories/auth/auth.repository";
 import { UserEntity } from "../../domain";
 import { Dto } from "../../config/dtos/dto";
 import { Token } from "../../utils/types_util";
-import { UserDto } from "../../models";
+import { UserDto, UserLoginDtoModel } from "../../models";
 
 export class AuthMiddleware {
   constructor(
     private readonly authRepository: AuthRepository,
     private readonly validateToken: Token,
-    private readonly registerUserDto: Dto<UserDto>
+    private readonly registerUserDto: Dto<UserDto>,
+    private readonly userLoginDto: Dto<UserLoginDtoModel>
   ) {}
 
   validateJwt = async (req: Request, res: Response, next: NextFunction) => {
@@ -108,6 +109,27 @@ export class AuthMiddleware {
       }
 
       req.body.registerUserDto = registerUserDto;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  validateUserLogin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const [error, detail, userLoginDtoModel] = this.userLoginDto.validate(
+        req.body
+      );
+
+      if (error) {
+        throw CustomError.badRequest(error, detail);
+      }
+
+      req.body.userLoginDtoModel = userLoginDtoModel;
       next();
     } catch (error) {
       next(error);
