@@ -1,0 +1,212 @@
+{
+	"info": {
+		"_postman_id": "5018c405-9d1d-4ab7-aaf0-11709dcb5ebd",
+		"name": "API NODE CLEAR ARCHITECTURE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7428245"
+	},
+	"item": [
+		{
+			"name": "SUPER ADMIN",
+			"item": []
+		},
+		{
+			"name": "USERS",
+			"item": [
+				{
+					"name": "REGISTER",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZDNhMzJkYzA0ZmY2ZjhkMmFmOWExMCIsImlhdCI6MTc0MTkyMzE3NCwiZXhwIjoxNzQxOTMwMzc0fQ.Vu5eIJjB5fAMdiAWN33KXN15Mvf4_by6zv1WYM8YalA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"name\": \"Ayneer Gonzalez\",\r\n     \"email\": \"ayneer40@gmail.com\",\r\n     \"password\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{URL}}/api/auth/register",
+							"protocol": "http",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LOGIN",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"email\": \"ayneer40@gmail.com\",\r\n     \"password\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{URL}}/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TEST",
+			"item": [
+				{
+					"name": "Get all users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZDM5ODVlNWE3NzBiNTZkZmIzMzAwZCIsImlhdCI6MTc0MTkyMzc3NywiZXhwIjoxNzQxOTMwOTc3fQ.SgGZsqoidONKVqaOH7KamQ9QgRERF0sxeJ-ZUDXbmf4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{URL}}/api/auth/",
+							"protocol": "http",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get one user by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZDM5ODVlNWE3NzBiNTZkZmIzMzAwZCIsImlhdCI6MTc0MjUwNDYwMiwiZXhwIjoxNzQyNTExODAyfQ._kfsWzP45Zn7C1x0ehV6320GmEolylfSQhfJggfM-d4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{URL}}/api/auth/67d39f4d6f8d490a76a316ac",
+							"protocol": "http",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"67d39f4d6f8d490a76a316ac"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete all users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZDE4YWI1OGU5YjgyYTAzY2NhODI5NCIsImlhdCI6MTc0MTkwODM0OCwiZXhwIjoxNzQxOTE1NTQ4fQ.OfygOeP0EQqtTBx7LdPmbUveNItgrN2C4iPToZnkQ4E",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{URL}}/api/auth/",
+							"protocol": "http",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete one users by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZGM4NTBkY2JhODVkYTU5YWE1MzIzZCIsImlhdCI6MTc0MjUwNTM0MywiZXhwIjoxNzQyNTEyNTQzfQ.aQkHkie_p_c8ScTNJWFivIBLYyl7LNxaLc_ZV751KIw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{URL}}/api/auth/67d39fab7e6c0153aa1c7290",
+							"protocol": "http",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"67d39fab7e6c0153aa1c7290"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

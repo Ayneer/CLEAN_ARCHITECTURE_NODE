@@ -11,4 +11,6 @@ export abstract class AuthRepository {
   abstract getOneUserById(getUserByIdDto: GetUserByIdDto): Promise<Partial<UserEntity>>;
   abstract deleteAllUsers(): Promise<void>;
   abstract deleteUserById(deleteUserByIdDto: DeleteOneUserByIdDto): Promise<Partial<UserEntity>[]>;
+  abstract getUserByEmail(email: string, fielsToDelete?: (keyof UserEntity)[]): Promise<UserEntity | null>;
+  abstract createUser(registerUserDto: UserDto, fielsToDelete?: (keyof UserEntity)[]): Promise<UserEntity>
 }
