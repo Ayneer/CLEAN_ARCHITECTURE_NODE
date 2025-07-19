@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { AuthController } from "../../infrastucture/controllers/auth/controllers";
 import { AuthFirebaseDatasourceImpl } from "../../infrastucture";
-import { AuthMiddleware } from "../middlewares/auth.middleware";
+import { AuthMiddleware } from "../middlewares/auth_middleware";
 import { JsonWebToken, LoginUserDto, RegisterUserDto } from "../../config";
 import {
   DeleteAllUser,
