@@ -10,8 +10,8 @@ export class AuthMiddleware {
   constructor(
     private readonly authRepository: AuthRepository,
     private readonly validateToken: Token,
-    private readonly registerUserDto: Dto<UserDto>,
-    private readonly userLoginDto: Dto<UserLoginDtoModel>
+    private readonly registerUserDto?: Dto<UserDto>,
+    private readonly userLoginDto?: Dto<UserLoginDtoModel>
   ) {}
 
   validateJwt = async (req: Request, res: Response, next: NextFunction) => {
@@ -38,7 +38,6 @@ export class AuthMiddleware {
         );
 
       req.body.user = user;
-
       next();
     } catch (error) {
       if (error instanceof CustomError) {
@@ -59,7 +58,7 @@ export class AuthMiddleware {
     next: NextFunction
   ) => {
     try {
-      const [error, detail, registerUserDto] = this.registerUserDto.validate(
+      const [error, detail, registerUserDto] = this.registerUserDto!.validate(
         req.body
       );
       if (error) {
@@ -100,7 +99,7 @@ export class AuthMiddleware {
     next: NextFunction
   ) => {
     try {
-      const [error, detail, registerUserDto] = this.registerUserDto.validate(
+      const [error, detail, registerUserDto] = this.registerUserDto!.validate(
         req.body
       );
 
@@ -121,7 +120,7 @@ export class AuthMiddleware {
     next: NextFunction
   ) => {
     try {
-      const [error, detail, userLoginDtoModel] = this.userLoginDto.validate(
+      const [error, detail, userLoginDtoModel] = this.userLoginDto!.validate(
         req.body
       );
 

@@ -71,6 +71,14 @@ export class AuthFirebaseDatasourceImpl implements AuthRepository {
     );
   }
 
+  async getOneUserById(
+    getUserByIdDto: GetUserByIdDto
+  ): Promise<Partial<UserEntity>> {
+    const { id } = getUserByIdDto;
+    const newUser = await getDoc(doc(this.userCollection, id));
+    return this.userMapper({ ...newUser.data(), id });
+  }
+
   async register(registerUserDto: UserDto): Promise<UserEntity> {
     throw CustomError.internalServerError();
   }
@@ -90,10 +98,6 @@ export class AuthFirebaseDatasourceImpl implements AuthRepository {
       }
       throw CustomError.internalServerError();
     }
-  }
-
-  getOneUserById(getUserByIdDto: GetUserByIdDto): Promise<Partial<UserEntity>> {
-    throw new Error("Method not implemented.");
   }
 
   deleteAllUsers(): Promise<void> {

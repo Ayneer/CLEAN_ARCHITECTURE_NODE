@@ -9,3 +9,4 @@ export const getParamsErrorMessages = (name: string) => ({
 });
 
 export const patternEmail = RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/);
+export const datePattern = RegExp(/^\d{4}-\d{2}-\d{2}$/);
