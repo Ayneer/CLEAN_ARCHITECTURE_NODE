@@ -41,6 +41,42 @@ export class LoanRoute {
       controller.createLoan
     );
 
+    router.post(
+      "/additional-loan",
+      [validateJwt, validateCreateLoanDto],
+      controller.createLoan
+    );
+
+    router.get(
+      "/:id",
+      [validateJwt, validateCreateLoanDto],
+      controller.createLoan
+    );
+
+    router.get(
+      "/all",
+      [validateJwt, validateCreateLoanDto],
+      controller.createLoan
+    );
+
+    router.post(
+      "/payment/create",
+      [validateJwt, validateCreateLoanDto],
+      controller.createLoan
+    );
+
+    router.delete(
+      "/payment/delete",
+      [validateJwt, validateCreateLoanDto],
+      controller.createLoan
+    );
+
+    router.put(
+      "/payment/update",
+      [validateJwt, validateCreateLoanDto],
+      controller.createLoan
+    );
+
     return router;
   }
 }

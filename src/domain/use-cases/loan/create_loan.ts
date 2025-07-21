@@ -1,11 +1,14 @@
 import { CustomError } from "../../../config";
 import { LoanDtoModel } from "../../../models/dto";
+import { DateUtil } from "../../../utils/date_util";
 import { LoanEntity, ClientEntity } from "../../entities";
 import { LoanState } from "../../enum";
 import { UseCaseInterface } from "../../interfaces/use_case_interface";
 import { ClientRepository, LoanRepository } from "../../repositories";
 
-export class CreateLoanUseCase implements UseCaseInterface<LoanDtoModel, LoanEntity> {
+export class CreateLoanUseCase
+  implements UseCaseInterface<LoanDtoModel, LoanEntity>
+{
   constructor(
     private readonly loanRepository: LoanRepository,
     private readonly clientRepository: ClientRepository
@@ -13,15 +16,14 @@ export class CreateLoanUseCase implements UseCaseInterface<LoanDtoModel, LoanEnt
 
   async excecute(data: LoanDtoModel): Promise<LoanEntity> {
     try {
-      console.log("Executing CreateLoanUseCase with data:", data);
       const { client } = data;
+      let createdClient: ClientEntity;
 
       const clientEntity: ClientEntity | null =
         await this.clientRepository.getClientByDocument(
           client.documentNumber,
           client.documentType
         );
-      let createdClient: ClientEntity;
 
       if (!clientEntity) {
         createdClient = await this.clientRepository.createClient(client);
@@ -29,15 +31,20 @@ export class CreateLoanUseCase implements UseCaseInterface<LoanDtoModel, LoanEnt
         createdClient = { ...clientEntity };
       }
 
+      const interest: number = (data.rate.value / 100) * data.amount; 
+
       const loanEntity: LoanEntity = await this.loanRepository.createLoan({
         amount: data.amount,
-        balance: data.amount,
-        initialDate: data.initialDate,
+        balance: data.amount + interest,
+        interestBalance: interest,
+        princilaCurrentAmount: data.amount,
+        initialDate: data.initialDate ?? DateUtil.formatDate(new Date()),
         state: LoanState.ACTIVE,
-        documents: data.documents,
+        documents: data.documents ?? [],
         rate: data.rate,
-        payments: [],
+        movements: [],
         clientId: createdClient.id,
+        ownerId: data.ownerId,
       });
 
       return loanEntity;

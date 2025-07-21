@@ -15,9 +15,7 @@ export class LoanMiddleware {
       if (error) {
         throw CustomError.badRequest(error, detail);
       }
-
-      console.log("Loan DTO validated successfully:", loanDtoModel);
-
+      
       req.body.loanDtoModel = loanDtoModel;
       next();
     } catch (error) {
