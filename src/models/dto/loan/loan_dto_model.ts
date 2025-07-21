@@ -1,8 +1,9 @@
-import { LoanRateType, LoanState, DocumentType } from "../../domain/enum";
+import { LoanRateType, LoanState, DocumentType, paymentFrequency } from "../../../domain/enum";
 
 export class LoanDtoModel {
   amount: number;
   initialDate?: string; //YYYY-MM-DD
+  paymentFrequency: number; // Frecuencia de pago del prestamo
   documents: {
     name: string; // Nombre del documento
     url: string; // URL del documento almacenado
@@ -27,6 +28,7 @@ export class LoanDtoModel {
   constructor(props: LoanDtoModel) {
     this.amount = props.amount;
     this.initialDate = props.initialDate;
+    this.paymentFrequency = props.paymentFrequency;
     this.documents = props.documents;
     this.rate = props.rate;
     this.client = props.client;

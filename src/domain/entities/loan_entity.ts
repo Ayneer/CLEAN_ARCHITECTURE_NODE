@@ -14,6 +14,7 @@ export class LoanEntity {
   initialDate: string; //YYYY-MM-DD
   finalDate?: string; //YYYY-MM-DD
   state: LoanState;
+  paymentFrequency: number; // Frecuencia de pago del prestamo
   documents: {
     name: string; // Nombre del documento
     url: string; // URL del documento almacenado
@@ -43,6 +44,7 @@ export class LoanEntity {
     this.initialDate = props.initialDate;
     this.finalDate = props.finalDate;
     this.state = props.state;
+    this.paymentFrequency = props.paymentFrequency;
     this.documents = props.documents;
     this.rate = props.rate;
     this.movements = props.movements;

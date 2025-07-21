@@ -5,10 +5,10 @@ import {
   LoanController,
   LoanFirebaseDatasourceImpl,
 } from "../../infrastucture";
-import { CreateLoanUseCase } from "../../domain";
+import { CreateLoanUseCase, PayLoanUseCase } from "../../domain";
 import { JsonWebToken } from "../../config/jwt";
 import { LoanMiddleware, AuthMiddleware } from "../middlewares";
-import { CreateLoanDto } from "../../config/dtos";
+import { CreateLoanDto, PayLoanDto } from "../../config/dtos";
 
 export class LoanRoute {
   static get routes(): Router {
@@ -24,16 +24,22 @@ export class LoanRoute {
       loanRepository,
       clientRepository
     );
+    const payLoanUseCase = new PayLoanUseCase(loanRepository);
 
     //Middlewares
     const { validateJwt } = new AuthMiddleware(
       authRepository,
       JsonWebToken.validateJWT
     );
-    const { validateCreateLoanDto } = new LoanMiddleware(new CreateLoanDto());
+    const createLoanDto = new CreateLoanDto();
+    const payLoanDto = new PayLoanDto();
+    const { validateCreateLoanDto, validatePayLoanDto } = new LoanMiddleware(
+      createLoanDto,
+      payLoanDto
+    );
 
     //Controller
-    const controller = new LoanController(createLoanUseCase);
+    const controller = new LoanController(createLoanUseCase, payLoanUseCase);
 
     router.post(
       "/create",
@@ -60,9 +66,9 @@ export class LoanRoute {
     );
 
     router.post(
-      "/payment/create",
-      [validateJwt, validateCreateLoanDto],
-      controller.createLoan
+      "/:id/payment/create",
+      [validateJwt, validatePayLoanDto],
+      controller.payLoan
     );
 
     router.delete(

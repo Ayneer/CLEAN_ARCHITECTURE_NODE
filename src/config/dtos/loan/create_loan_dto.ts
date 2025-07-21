@@ -3,7 +3,10 @@ import { datePattern, getParamsErrorMessages, patternEmail } from "../..";
 import { Dto } from "../dto";
 import { LoanDtoModel, UserDto } from "../../../models";
 import { DtoUtil } from "../utils/dto_util";
-import { LoanRateType, DocumentType } from "../../../domain/enum";
+import {
+  LoanRateType,
+  DocumentType,
+} from "../../../domain/enum";
 
 export class CreateLoanDto extends Dto<LoanDtoModel> {
   constructor() {
@@ -18,6 +21,9 @@ export class CreateLoanDto extends Dto<LoanDtoModel> {
       initialDate: Joi.string()
         .regex(datePattern)
         .messages(getParamsErrorMessages("loan_initial_date")),
+      paymentFrequency: Joi.number()
+        .required()
+        .messages(getParamsErrorMessages("loan_payment_frequency")),
       documents: Joi.array()
         .items(
           Joi.object({
@@ -89,13 +95,14 @@ export class CreateLoanDto extends Dto<LoanDtoModel> {
         undefined,
       ];
     } else {
-      const { amount, initialDate, documents, rate, client, user } = object;
+      const { amount, initialDate, documents, rate, client, user,paymentFrequency } = object;
       return [
         undefined,
         undefined,
         new LoanDtoModel({
           amount,
           initialDate: initialDate ?? null,
+          paymentFrequency,
           documents,
           rate,
           client,

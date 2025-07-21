@@ -7,6 +7,7 @@ import {
   doc,
   DocumentData,
   getDoc,
+  updateDoc
 } from "firebase/firestore/lite";
 import { FirebaseDatabase } from "../../../../drivers/data/firebase/firebase_database";
 import { firebaseCollections } from "../../../../drivers/data/firebase/firebase_collections";
@@ -41,5 +42,9 @@ export class LoanFirebaseDatasourceImpl implements LoanRepository {
       ...loanData,
       id: snapShot.id,
     });
+  }
+
+  async updateLoan(id: string, loan: Partial<LoanEntity>): Promise<void> {
+    await updateDoc(doc(this.loanCollection, id), loan);
   }
 }
