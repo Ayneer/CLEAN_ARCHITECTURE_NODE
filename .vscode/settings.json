@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "ayneer",
+        "projectKey": "Ayneer_CLEAN_ARCHITECTURE_NODE"
+    }
+}

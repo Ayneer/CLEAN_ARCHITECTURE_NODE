@@ -31,12 +31,10 @@ export class CreateLoanUseCase
         createdClient = { ...clientEntity };
       }
 
-      const interest: number = (data.rate.value / 100) * data.amount; 
-
       const loanEntity: LoanEntity = await this.loanRepository.createLoan({
         amount: data.amount,
-        balance: data.amount + interest,
-        interestBalance: interest,
+        balance: data.amount,
+        interestBalance: 0,
         princilaCurrentAmount: data.amount,
         initialDate: data.initialDate ?? DateUtil.formatDate(new Date()),
         finalDate: '',
@@ -45,6 +43,7 @@ export class CreateLoanUseCase
         documents: data.documents ?? [],
         rate: data.rate,
         movements: [],
+        arrearInterests: [],
         clientId: createdClient.id,
         ownerId: data.ownerId,
       });

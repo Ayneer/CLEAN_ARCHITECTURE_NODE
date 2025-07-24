@@ -17,6 +17,7 @@ export class LoanMapper {
       documents,
       rate,
       movements,
+      arrearInterests,
       clientId,
       ownerId,
       interestBalance,
@@ -34,6 +35,7 @@ export class LoanMapper {
     if (!documents) throw CustomError.badRequest("Missing documents");
     if (!rate) throw CustomError.badRequest("Missing rate");
     if (!movements) throw CustomError.badRequest("Missing movements");
+    if (!arrearInterests) throw CustomError.badRequest("Missing arrearInterests");
     if (!clientId) throw CustomError.badRequest("Missing clientId");
     if (!ownerId) throw CustomError.badRequest("Missing ownerId");
     if (!paymentFrequency) throw CustomError.badRequest("Missing paymentFrequency");
@@ -45,6 +47,7 @@ export class LoanMapper {
       initialDate,
       state,
       documents,
+      arrearInterests,
       rate,
       movements,
       clientId,

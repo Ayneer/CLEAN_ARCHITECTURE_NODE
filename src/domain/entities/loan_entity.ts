@@ -8,9 +8,9 @@ import {
 export class LoanEntity {
   id: string;
   amount: number; // monto inicial del prestamo
-  balance: number; // saldo del prestamo más intereses
+  balance: number; // saldo del capital más intereses
   interestBalance: number; // saldo de intereses del prestamo
-  princilaCurrentAmount: number; // monto actual del capital - varia con cada movimiento
+  princilaCurrentAmount: number; // monto actual del capital - varia con los abonos al capital
   initialDate: string; //YYYY-MM-DD
   finalDate?: string; //YYYY-MM-DD
   state: LoanState;
@@ -27,10 +27,15 @@ export class LoanEntity {
   };
   movements: {
     amount: number; // Monto del movimiento
-    date: string; // Fecha del movimiento, YYYY-MM-DD
+    date: string; // Fecha real/actual del movimiento, YYYY-MM-DD
+    quoteDate: string; // Fecha que le corresponde al pago realizado, YYYY-MM-DD
     type: LoanMovementType; // Tipo de movimiento
     description?: string; // Descripción del moviemtiento
     movementChannel: LoanMovementChannel; // Canal de pago
+  }[];
+  arrearInterests: {//Intereses en mora
+    amount: number; // Monto del interes en mora
+    date: string; // Fecha del interes en mora YYYY-MM-DD
   }[];
   clientId: string; // ID del cliente
   ownerId: string;
@@ -48,6 +53,7 @@ export class LoanEntity {
     this.documents = props.documents;
     this.rate = props.rate;
     this.movements = props.movements;
+    this.arrearInterests = props.arrearInterests;
     this.clientId = props.clientId;
     this.ownerId = props.ownerId;
   }

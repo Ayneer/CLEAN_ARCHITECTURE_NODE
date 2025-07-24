@@ -5,10 +5,14 @@ import {
   LoanController,
   LoanFirebaseDatasourceImpl,
 } from "../../infrastucture";
-import { CreateLoanUseCase, PayLoanUseCase } from "../../domain";
+import {
+  CreateLoanUseCase,
+  GetPaymentDetailLoanUseCase,
+  PayLoanUseCase,
+} from "../../domain";
 import { JsonWebToken } from "../../config/jwt";
 import { LoanMiddleware, AuthMiddleware } from "../middlewares";
-import { CreateLoanDto, PayLoanDto } from "../../config/dtos";
+import { CreateLoanDto, GetPaymentDetailLoanDto, PayLoanDto } from "../../config/dtos";
 
 export class LoanRoute {
   static get routes(): Router {
@@ -25,21 +29,32 @@ export class LoanRoute {
       clientRepository
     );
     const payLoanUseCase = new PayLoanUseCase(loanRepository);
+    const getPaymentDetailLoanUseCase = new GetPaymentDetailLoanUseCase(
+      loanRepository
+    );
+
+    //Dtos
+    const createLoanDto = new CreateLoanDto();
+    const payLoanDto = new PayLoanDto();
+    const getPaymentDetailLoanDto = new GetPaymentDetailLoanDto();
 
     //Middlewares
     const { validateJwt } = new AuthMiddleware(
       authRepository,
       JsonWebToken.validateJWT
     );
-    const createLoanDto = new CreateLoanDto();
-    const payLoanDto = new PayLoanDto();
-    const { validateCreateLoanDto, validatePayLoanDto } = new LoanMiddleware(
+    const { validateCreateLoanDto, validatePayLoanDto, validateGetPaymentDetailLoanDto } = new LoanMiddleware(
       createLoanDto,
-      payLoanDto
+      payLoanDto,
+      getPaymentDetailLoanDto
     );
 
     //Controller
-    const controller = new LoanController(createLoanUseCase, payLoanUseCase);
+    const controller = new LoanController(
+      createLoanUseCase,
+      payLoanUseCase,
+      getPaymentDetailLoanUseCase
+    );
 
     router.post(
       "/create",
@@ -54,9 +69,9 @@ export class LoanRoute {
     );
 
     router.get(
-      "/:id",
-      [validateJwt, validateCreateLoanDto],
-      controller.createLoan
+      "/:id/payment/detail",
+      [validateJwt, validateGetPaymentDetailLoanDto],
+      controller.getPaymentDetailLoan
     );
 
     router.get(

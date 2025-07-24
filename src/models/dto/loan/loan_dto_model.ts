@@ -1,4 +1,4 @@
-import { LoanRateType, LoanState, DocumentType, paymentFrequency } from "../../../domain/enum";
+import { LoanRateType, DocumentType } from "../../../domain/enum";
 
 export class LoanDtoModel {
   amount: number;
