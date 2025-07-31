@@ -2,5 +2,6 @@
     "sonarlint.connectedMode.project": {
         "connectionId": "ayneer",
         "projectKey": "Ayneer_CLEAN_ARCHITECTURE_NODE"
-    }
+    },
+    "sonarlint.pathToNodeExecutable": "/usr/local/bin/node/v22.17.1/bin/node"
 }

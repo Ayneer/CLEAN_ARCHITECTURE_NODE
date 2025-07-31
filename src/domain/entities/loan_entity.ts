@@ -7,6 +7,7 @@ import {
 
 export class LoanEntity {
   id: string;
+  code: string;
   amount: number; // monto inicial del prestamo
   balance: number; // saldo del capital más intereses
   interestBalance: number; // saldo de intereses del prestamo
@@ -42,6 +43,7 @@ export class LoanEntity {
 
   constructor(props: LoanEntity) {
     this.id = props.id;
+    this.code = props.code;
     this.amount = props.amount;
     this.balance = props.balance;
     this.interestBalance = props.interestBalance;

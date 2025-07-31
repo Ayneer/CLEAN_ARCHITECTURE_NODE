@@ -2,4 +2,6 @@ export enum LoanState {
     ACTIVE = "ACTIVE",
     CLOSED = "CLOSED",
     PENDING = "PENDING",
+    ARREAR_INTEREST = "ARREAR_INTEREST",
+    ACTIVE_OLD = "ACTIVE_OLD"
 }

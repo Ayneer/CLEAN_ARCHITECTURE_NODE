@@ -1,4 +1,4 @@
-import { LoanRateType, DocumentType } from "../../../domain/enum";
+import { LoanRateType, DocumentType, LoanState } from "../../../domain/enum";
 
 export class LoanDtoModel {
   amount: number;
@@ -24,6 +24,7 @@ export class LoanDtoModel {
     city: string;
   };
   ownerId: string;
+  state?: LoanState;
 
   constructor(props: LoanDtoModel) {
     this.amount = props.amount;
@@ -33,5 +34,6 @@ export class LoanDtoModel {
     this.rate = props.rate;
     this.client = props.client;
     this.ownerId = props.ownerId;
+    this.state = props.state;
   }
 }

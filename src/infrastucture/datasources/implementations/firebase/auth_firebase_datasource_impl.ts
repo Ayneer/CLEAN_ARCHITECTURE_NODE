@@ -1,10 +1,8 @@
 import { AuthRepository, UserEntity } from "../../../../domain";
 import {
-  getFirestore,
   collection,
   getDocs,
   DocumentData,
-  QueryDocumentSnapshot,
   CollectionReference,
   addDoc,
   query,
@@ -17,21 +15,19 @@ import { UserMapper } from "../../mappers";
 import {
   CustomError,
   DeleteOneUserByIdDto,
-  envs,
   GetUserByIdDto,
   LoginUserDto,
 } from "../../../../config";
 import { firebaseCollections } from "../../../../drivers/data/firebase/firebase_collections";
 import { UserDto } from "../../../../models";
-import {
-  Hash,
-  CompareHash,
-  UserMapperType,
-} from "../../../../utils/types_util";
+import { UserMapperType } from "../../../../utils/types_util";
 
 export class AuthFirebaseDatasourceImpl implements AuthRepository {
-  private userCollection: CollectionReference<DocumentData, DocumentData>;
-  private userMapper: UserMapperType = UserMapper.userEntityFromObject;
+  private readonly userCollection: CollectionReference<
+    DocumentData,
+    DocumentData
+  >;
+  private readonly userMapper: UserMapperType = UserMapper.userEntityFromObject;
 
   constructor() {
     this.userCollection = collection(

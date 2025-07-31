@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import express from "express";
 import { ErrorControllerHanlder } from "../API/middlewares/error_handler";
 import { DataBase } from "../drivers/interfaces/database_interface";
 import { ServerInterface } from "./interfaces/server_interface";

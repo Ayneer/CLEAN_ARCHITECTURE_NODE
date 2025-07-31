@@ -1,4 +1,4 @@
-import { ClientEntity, LoanEntity } from "../../../../domain";
+import { LoanEntity } from "../../../../domain";
 import { LoanRepository } from "../../../../domain/repositories";
 import {
   addDoc,
@@ -7,6 +7,7 @@ import {
   doc,
   DocumentData,
   getDoc,
+  getDocs,
   updateDoc
 } from "firebase/firestore/lite";
 import { FirebaseDatabase } from "../../../../drivers/data/firebase/firebase_database";
@@ -14,13 +15,18 @@ import { firebaseCollections } from "../../../../drivers/data/firebase/firebase_
 import { LoanMapper } from "../../mappers";
 
 export class LoanFirebaseDatasourceImpl implements LoanRepository {
-  private loanCollection: CollectionReference<DocumentData, DocumentData>;
+  private readonly loanCollection: CollectionReference<DocumentData, DocumentData>;
 
   constructor() {
     this.loanCollection = collection(
       FirebaseDatabase.db,
       firebaseCollections.loans
     );
+  }
+
+  async getLoanCount(): Promise<number> {
+    const snapShot = await getDocs(this.loanCollection);
+    return snapShot.size;
   }
 
   async createLoan(loan: Partial<LoanEntity>): Promise<LoanEntity> {

@@ -1,12 +1,9 @@
 import Joi from "joi";
 import { datePattern, getParamsErrorMessages, patternEmail } from "../..";
 import { Dto } from "../dto";
-import { LoanDtoModel, UserDto } from "../../../models";
+import { LoanDtoModel } from "../../../models";
 import { DtoUtil } from "../utils/dto_util";
-import {
-  LoanRateType,
-  DocumentType,
-} from "../../../domain/enum";
+import { LoanRateType, DocumentType, LoanState } from "../../../domain/enum";
 
 export class CreateLoanDto extends Dto<LoanDtoModel> {
   constructor() {
@@ -82,6 +79,9 @@ export class CreateLoanDto extends Dto<LoanDtoModel> {
       })
         .required()
         .messages(getParamsErrorMessages("loan_client")),
+      state: Joi.valid([LoanState.ACTIVE_OLD, LoanState.PENDING]).messages(
+        getParamsErrorMessages("loan_state")
+      ),
     })
       .unknown(true)
       .messages(getParamsErrorMessages("loan_object"));
@@ -95,7 +95,16 @@ export class CreateLoanDto extends Dto<LoanDtoModel> {
         undefined,
       ];
     } else {
-      const { amount, initialDate, documents, rate, client, user,paymentFrequency } = object;
+      const {
+        amount,
+        initialDate,
+        documents,
+        rate,
+        client,
+        user,
+        paymentFrequency,
+        state
+      } = object;
       return [
         undefined,
         undefined,
@@ -107,6 +116,7 @@ export class CreateLoanDto extends Dto<LoanDtoModel> {
           rate,
           client,
           ownerId: user.id,
+          state: state ?? null
         }),
       ];
     }
