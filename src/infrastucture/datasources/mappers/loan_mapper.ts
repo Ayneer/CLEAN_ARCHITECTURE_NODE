@@ -1,4 +1,3 @@
-import { PartialSchemaMap } from "joi";
 import { CustomError } from "../../../config";
 import { LoanEntity } from "../../../domain";
 
@@ -22,12 +21,14 @@ export class LoanMapper {
       ownerId,
       interestBalance,
       princilaCurrentAmount,
-      paymentFrequency
+      paymentFrequency,
+      code
     } = object;
 
     if (!id && !_id) throw CustomError.badRequest("Missing id");
+    if (!code) throw CustomError.badRequest("Missing code");
     if (amount === undefined || amount === null) throw CustomError.badRequest("Missing amount");
-    if (balance === undefined || balance === undefined) throw CustomError.badRequest("Missing balance");
+    if (balance === undefined) throw CustomError.badRequest("Missing balance");
     if (interestBalance === undefined || interestBalance === null) throw CustomError.badRequest("Missing interestBalance");
     if (princilaCurrentAmount === undefined || princilaCurrentAmount === null) throw CustomError.badRequest("Missing princilaCurrentAmount");
     if (!initialDate) throw CustomError.badRequest("Missing initialDate");
@@ -54,7 +55,8 @@ export class LoanMapper {
       ownerId,
       interestBalance,
       princilaCurrentAmount,
-      paymentFrequency
+      paymentFrequency,
+      code
     });
 
     fielsToDelete.forEach((field) => {

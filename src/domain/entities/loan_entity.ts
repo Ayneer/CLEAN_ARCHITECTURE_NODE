@@ -1,9 +1,9 @@
 import {
-  LoanMovementChannel,
-  LoanMovementType,
   LoanRateType,
   LoanState,
 } from "../enum";
+import { LoanArrearInterest } from "../interfaces/arrear_interest_interface";
+import { LoanMovement } from "../interfaces/loan_movement_interface";
 
 export class LoanEntity {
   id: string;
@@ -26,18 +26,8 @@ export class LoanEntity {
     value: number; // Tasa de interes
     type: LoanRateType;
   };
-  movements: {
-    amount: number; // Monto del movimiento
-    date: string; // Fecha real/actual del movimiento, YYYY-MM-DD
-    quoteDate: string; // Fecha que le corresponde al pago realizado, YYYY-MM-DD
-    type: LoanMovementType; // Tipo de movimiento
-    description?: string; // Descripción del moviemtiento
-    movementChannel: LoanMovementChannel; // Canal de pago
-  }[];
-  arrearInterests: {//Intereses en mora
-    amount: number; // Monto del interes en mora
-    date: string; // Fecha del interes en mora YYYY-MM-DD
-  }[];
+  movements: LoanMovement[];
+  arrearInterests: LoanArrearInterest[]; //Intereses en mora
   clientId: string; // ID del cliente
   ownerId: string;
 

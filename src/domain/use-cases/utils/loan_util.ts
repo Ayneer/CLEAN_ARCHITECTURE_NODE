@@ -7,7 +7,7 @@ import {
   PaymentFrequency,
 } from "../../enum";
 import { v4 as uuidv4 } from "uuid";
-import { ArrearInterest } from "../../interfaces/arrear_interests_interface";
+import { LoanArrearInterest } from "../../interfaces/arrear_interest_interface";
 
 export class LoanUtils {
   public static setLoanInterests(loanEntity: LoanEntity): LoanEntity {
@@ -113,7 +113,7 @@ export class LoanUtils {
     lastDate: Date
   ): {
     updatedInterestBalance: number;
-    updatedArrearInterests: ArrearInterest[];
+    updatedArrearInterests: LoanArrearInterest[];
   } {
     if (periodsMissed < 1) {
       return {
