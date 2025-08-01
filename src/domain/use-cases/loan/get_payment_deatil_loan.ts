@@ -1,8 +1,7 @@
 import { CustomError } from "../../../config";
 import { GetPaymentDetailLoanDtoModel } from "../../../models/dto";
-import { DateUtil } from "../../../utils/date_util";
 import { LoanEntity } from "../../entities";
-import { LoanMovementType, LoanRateType, LoanState } from "../../enum";
+import { LoanState } from "../../enum";
 import { UseCaseInterface } from "../../interfaces/use_case_interface";
 import { LoanRepository } from "../../repositories";
 import { LoanUtils } from "../utils";
@@ -15,6 +14,7 @@ export class GetPaymentDetailLoanUseCase
   async excecute(data: GetPaymentDetailLoanDtoModel): Promise<LoanEntity> {
     try {
       const { loanId, ownerId } = data;
+
       //Search for the loan by ID
       const loanEntity: LoanEntity | null =
         await this.loanRepository.getLoanById(loanId);
@@ -29,13 +29,21 @@ export class GetPaymentDetailLoanUseCase
         );
       }
 
-      const newLoan = LoanUtils.setLoanInterests(new LoanEntity(loanEntity));
+      const canCalculateInterest = [
+        LoanState.ACTIVE,
+        LoanState.ARREAR_INTEREST,
+      ].some((state) => state === loanEntity.state);
 
-      await this.loanRepository.updateLoan(loanId, {
-        ...newLoan,
-        finalDate: "",
-      });
-      return newLoan;
+      if (canCalculateInterest) {
+        const newLoan = LoanUtils.setLoanInterests(new LoanEntity(loanEntity));
+        await this.loanRepository.updateLoan(loanId, {
+          ...newLoan,
+          finalDate: "",
+        });
+        return newLoan;
+      }
+
+      return loanEntity;
     } catch (error) {
       if (error instanceof CustomError) {
         throw error;

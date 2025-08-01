@@ -1,120 +1,164 @@
 import { DateUtil } from "../../../utils/date_util";
 import { LoanEntity } from "../../entities";
-import { LoanMovementType, LoanRateType, PaymentFrequency } from "../../enum";
+import {
+  LoanMovementType,
+  LoanRateType,
+  LoanState,
+  PaymentFrequency,
+} from "../../enum";
+import { v4 as uuidv4 } from "uuid";
+import { ArrearInterest } from "../../interfaces/arrear_interests_interface";
 
 export class LoanUtils {
-  static setLoanInterests(loanEntity: LoanEntity): LoanEntity {
-    const { initialDate, interestBalance, paymentFrequency } = loanEntity;
-    const interestAmount = this.getInterestAmount(loanEntity); //Monto de interes por periodo del prestamo
-    let lastDate: string = initialDate; //Última fecha que se usará para buscar y calcular intereses en mora
-    let newInterestAmount: number = interestBalance;
-    let interestNumber: number = 0;
-    let arrearInterests = [...loanEntity.arrearInterests];
-
-    //Se obtiene la fecha del último interes en mora
-    //A partir de esta su buscarán nuevos intereses en mora (Sí los tiene)
-    if (arrearInterests.length > 0) {
-      lastDate = arrearInterests.reduce((prev, current) => {
-        return DateUtil.parseDate(prev.date) > DateUtil.parseDate(current.date)
-          ? prev
-          : current;
-      }).date;
-    } else {
-      //Sí no tiene intereses en mora, buscamos por la fecha del último pago a intereses que tenga
-      const movements = loanEntity.movements.filter((movement) => {
-        return (
-          movement.type === LoanMovementType.INTEREST_PAYMENT ||
-          movement.type === LoanMovementType.QUOTA_PAYMENT
-        );
-      });
-      if (movements.length > 0) {
-        //Get the most recent movement by date
-        lastDate = movements.reduce((prev, current) => {
-          return DateUtil.parseDate(prev.quoteDate) >
-            DateUtil.parseDate(current.quoteDate)
-            ? prev
-            : current;
-        }).quoteDate;
-      }
-    }
-
-    const lastPaymentDate = DateUtil.parseDate(lastDate);
-
-    //Validamos todos los periodos de pagos en mora que tiene el prestamo
-    const differenceInMonths = DateUtil.getDifferenceInMonths(
-      lastPaymentDate,
-      DateUtil.getCurrentDate()
+  public static setLoanInterests(loanEntity: LoanEntity): LoanEntity {
+    const interestAmount = this.getInterestAmount(loanEntity); //Obtengo el valor del interes que se debe pagar por cada periodo del prestamo
+    const lastPaymentDate = this.getLastRelevantDate(loanEntity); //Obtengo la ultima fecha de pago realizado
+    const interestNumber = this.getMissedPaymentPeriods(
+      //Obtengo los periodos del prestamo que no se han pagado, desde el ultimo pago
+      loanEntity.paymentFrequency,
+      lastPaymentDate
     );
-
-    const differenceInDays = DateUtil.getDifferenceInDays(
-      lastPaymentDate,
-      DateUtil.getCurrentDate()
-    );
-
-    switch (paymentFrequency) {
-      case PaymentFrequency.MONTHLY:
-        interestNumber = differenceInMonths;
-        break;
-
-      case PaymentFrequency.BIWEEKLY:
-        interestNumber = Math.floor(differenceInDays / 15);
-        break;
-
-      case PaymentFrequency.WEEKLY:
-        interestNumber = Math.floor(differenceInDays / 7);
-        break;
-
-      case PaymentFrequency.DAILY:
-        interestNumber = differenceInDays;
-        break;
-
-      default:
-        interestNumber = Math.floor(differenceInDays / paymentFrequency);
-        break;
-    }
-
-    //Se encontraron periodos en mora
-    if (interestNumber >= 1) {
-      console.log("Se encontraron periodos en mora");
-      let stringDate = DateUtil.formatDate(lastPaymentDate);
-      for (let index = 1; index <= interestNumber; index++) {
-        let newDate: Date;
-        if (paymentFrequency === PaymentFrequency.MONTHLY) {
-          newDate = DateUtil.addMonth(new Date(lastPaymentDate), index);
-        } else if (paymentFrequency === PaymentFrequency.BIWEEKLY) {
-          newDate = DateUtil.getNextBiWeeklyDate(new Date(stringDate));
-        } else {
-          newDate = DateUtil.addDays(
-            new Date(lastPaymentDate),
-            index * paymentFrequency
-          );
-        }
-        stringDate = DateUtil.formatDate(newDate);
-        if (
-          !arrearInterests.some(
-            (arrearInterest) => arrearInterest.date === stringDate
-          )
-        ) {
-          newInterestAmount += interestAmount;
-          arrearInterests.push({
-            amount: interestAmount,
-            date: stringDate,
-          });
-        }
-      }
-    }
+    const { updatedArrearInterests, updatedInterestBalance } =
+      this.calculateNewArrearInterests(
+        loanEntity,
+        interestAmount,
+        interestNumber,
+        lastPaymentDate
+      );
 
     const updatedLoanEntity: LoanEntity = {
       ...loanEntity,
-      balance: loanEntity.balance - interestBalance + newInterestAmount,
-      interestBalance: newInterestAmount,
-      arrearInterests,
+      balance:
+        loanEntity.balance -
+        loanEntity.interestBalance +
+        updatedInterestBalance,
+      interestBalance: updatedInterestBalance,
+      arrearInterests: updatedArrearInterests,
+      state:
+        updatedArrearInterests.length > 0
+          ? LoanState.ARREAR_INTEREST
+          : loanEntity.state,
     };
 
     return updatedLoanEntity;
   }
 
-  static getInterestAmount(loanEntity: LoanEntity) {
+  private static getLastRelevantDate(loan: LoanEntity): Date {
+    const { initialDate, arrearInterests, movements } = loan;
+
+    //Se obtiene la fecha del último interes en mora (la mas reciente)
+    //A partir de esta su buscarán nuevos intereses en mora (Sí los tiene)
+    if (arrearInterests.length > 0) {
+      return DateUtil.parseDate(
+        arrearInterests.reduce(
+          (prev, current) =>
+            DateUtil.parseDate(prev.date) > DateUtil.parseDate(current.date)
+              ? prev
+              : current,
+          arrearInterests[0]
+        ).date
+      );
+    }
+
+    //Sí no tiene intereses en mora, buscamos por la fecha del último pago a intereses que tenga
+    const filteredMovements = movements.filter(
+      (movement) =>
+        movement.type === LoanMovementType.INTEREST_PAYMENT ||
+        movement.type === LoanMovementType.QUOTA_PAYMENT
+    );
+
+    if (filteredMovements.length > 0) {
+      return DateUtil.parseDate(
+        filteredMovements.reduce(
+          (prev, current) =>
+            DateUtil.parseDate(prev.quoteDate) >
+            DateUtil.parseDate(current.quoteDate)
+              ? prev
+              : current,
+          filteredMovements[0]
+        ).quoteDate
+      );
+    }
+
+    //Si no tiene retorno la fecha inicial del prestamo
+    return DateUtil.parseDate(initialDate);
+  }
+
+  private static getMissedPaymentPeriods(
+    frequency: number,
+    fromDate: Date
+  ): number {
+    const currentDate = DateUtil.getCurrentDate();
+    const daysDiff = DateUtil.getDifferenceInDays(fromDate, currentDate);
+    const monthsDiff = DateUtil.getDifferenceInMonths(fromDate, currentDate);
+
+    switch (frequency) {
+      case PaymentFrequency.MONTHLY:
+        return monthsDiff;
+      case PaymentFrequency.BIWEEKLY:
+        return Math.floor(daysDiff / PaymentFrequency.BIWEEKLY);
+      case PaymentFrequency.WEEKLY:
+        return Math.floor(daysDiff / PaymentFrequency.WEEKLY);
+      case PaymentFrequency.DAILY:
+        return daysDiff;
+      default:
+        return Math.floor(daysDiff / frequency);
+    }
+  }
+
+  private static calculateNewArrearInterests(
+    loan: LoanEntity,
+    interestAmount: number,
+    periodsMissed: number,
+    lastDate: Date
+  ): {
+    updatedInterestBalance: number;
+    updatedArrearInterests: ArrearInterest[];
+  } {
+    if (periodsMissed < 1) {
+      return {
+        updatedInterestBalance: loan.interestBalance,
+        updatedArrearInterests: [...loan.arrearInterests],
+      };
+    }
+
+    const arrearInterests = [...loan.arrearInterests];
+    let updatedBalance = loan.interestBalance;
+    let stringDate = DateUtil.formatDate(lastDate);
+
+    for (let i = 1; i <= periodsMissed; i++) {
+      let newDate: Date;
+
+      switch (loan.paymentFrequency) {
+        case PaymentFrequency.MONTHLY:
+          newDate = DateUtil.addMonth(lastDate, i);
+          break;
+        case PaymentFrequency.BIWEEKLY:
+          newDate = DateUtil.getNextBiWeeklyDate(new Date(stringDate));
+          break;
+        default:
+          newDate = DateUtil.addDays(lastDate, i * loan.paymentFrequency);
+          break;
+      }
+
+      stringDate = DateUtil.formatDate(newDate);
+
+      const alreadyExists = arrearInterests.some(
+        (ai) => ai.date === stringDate
+      );
+      if (!alreadyExists) {
+        arrearInterests.push({ amount: interestAmount, date: stringDate });
+        updatedBalance += interestAmount;
+      }
+    }
+
+    return {
+      updatedInterestBalance: updatedBalance,
+      updatedArrearInterests: arrearInterests,
+    };
+  }
+
+  public static getInterestAmount(loanEntity: LoanEntity) {
     const ONE_HUNDRED_PERCENT = 100;
     const totalAmount: number =
       loanEntity.rate.type === LoanRateType.FIXED
@@ -123,7 +167,7 @@ export class LoanUtils {
     return totalAmount * (loanEntity.rate.value / ONE_HUNDRED_PERCENT);
   }
 
-  static compareArrearInterests(
+  public static compareArrearInterests(
     arrearInterestsA: {
       amount: number;
       date: string;
@@ -149,4 +193,20 @@ export class LoanUtils {
 
     return true;
   }
+
+  public static readonly generateConsecutiveUUID = async () => {
+    try {
+      // Genera un UUID
+      const uuid = uuidv4();
+
+      const timestamp = Date.now().toString().slice(-6); // Últimos 6 dígitos del timestamp
+      const consecutive = (
+        uuid.replace(/\D/g, "").slice(0, 4) + timestamp
+      ).padStart(10, "0");
+
+      return consecutive;
+    } catch (error) {
+      console.error("Error al generar el consecutivo:", error);
+    }
+  };
 }
