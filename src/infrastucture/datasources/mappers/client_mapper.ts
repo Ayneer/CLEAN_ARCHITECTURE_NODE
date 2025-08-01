@@ -1,4 +1,3 @@
-import { PartialSchemaMap } from "joi";
 import { CustomError } from "../../../config";
 import { ClientEntity } from "../../../domain";
 

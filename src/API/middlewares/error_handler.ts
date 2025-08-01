@@ -17,7 +17,7 @@ export class ErrorControllerHanlder {
           error: err.message,
           codeError: err.codeError,
         });
-    } else if (err && err.message) {
+    } else if (err?.message) {
       //logger error
       console.error("error handler:", err.message);
       throw CustomError.internalServerError();

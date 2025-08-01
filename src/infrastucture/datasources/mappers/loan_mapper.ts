@@ -4,65 +4,74 @@ import { LoanEntity } from "../../../domain";
 export class LoanMapper {
   static loanEntityFromObject(
     object: { [key: string]: any },
-    fielsToDelete: (keyof LoanEntity)[] = []
+    fieldsToDelete: (keyof LoanEntity)[] = []
   ): LoanEntity {
-    const {
-      id,
-      _id,
-      amount,
-      balance,
-      initialDate,
-      state,
-      documents,
-      rate,
-      movements,
-      arrearInterests,
-      clientId,
-      ownerId,
-      interestBalance,
-      princilaCurrentAmount,
-      paymentFrequency,
-      code
-    } = object;
-
-    if (!id && !_id) throw CustomError.badRequest("Missing id");
-    if (!code) throw CustomError.badRequest("Missing code");
-    if (amount === undefined || amount === null) throw CustomError.badRequest("Missing amount");
-    if (balance === undefined) throw CustomError.badRequest("Missing balance");
-    if (interestBalance === undefined || interestBalance === null) throw CustomError.badRequest("Missing interestBalance");
-    if (princilaCurrentAmount === undefined || princilaCurrentAmount === null) throw CustomError.badRequest("Missing princilaCurrentAmount");
-    if (!initialDate) throw CustomError.badRequest("Missing initialDate");
-    if (!state) throw CustomError.badRequest("Missing state");
-    if (!documents) throw CustomError.badRequest("Missing documents");
-    if (!rate) throw CustomError.badRequest("Missing rate");
-    if (!movements) throw CustomError.badRequest("Missing movements");
-    if (!arrearInterests) throw CustomError.badRequest("Missing arrearInterests");
-    if (!clientId) throw CustomError.badRequest("Missing clientId");
-    if (!ownerId) throw CustomError.badRequest("Missing ownerId");
-    if (!paymentFrequency) throw CustomError.badRequest("Missing paymentFrequency");
+    const validated = this.validateRequiredFields(object);
 
     const loan: LoanEntity = new LoanEntity({
-      id: id || _id,
-      amount,
-      balance,
-      initialDate,
-      state,
-      documents,
-      arrearInterests,
-      rate,
-      movements,
-      clientId,
-      ownerId,
-      interestBalance,
-      princilaCurrentAmount,
-      paymentFrequency,
-      code
+      id: validated.id || validated._id,
+      amount: validated.amount,
+      balance: validated.balance,
+      initialDate: validated.initialDate,
+      state: validated.state,
+      documents: validated.documents,
+      arrearInterests: validated.arrearInterests,
+      rate: validated.rate,
+      movements: validated.movements,
+      clientId: validated.clientId,
+      ownerId: validated.ownerId,
+      interestBalance: validated.interestBalance,
+      princilaCurrentAmount: validated.princilaCurrentAmount,
+      paymentFrequency: validated.paymentFrequency,
+      code: validated.code,
     });
 
-    fielsToDelete.forEach((field) => {
-      delete loan[field];
-    });
+    fieldsToDelete.forEach((field) => delete loan[field]);
 
     return loan;
+  }
+
+  private static validateRequiredFields(object: { [key: string]: any }): {
+    [key: string]: any;
+  } {
+    const requiredFields: {
+      key: keyof LoanEntity | "_id";
+      allowZero?: boolean;
+    }[] = [
+      { key: "id" },
+      { key: "_id" },
+      { key: "code" },
+      { key: "amount" },
+      { key: "balance" },
+      { key: "interestBalance" },
+      { key: "princilaCurrentAmount" },
+      { key: "initialDate" },
+      { key: "state" },
+      { key: "documents" },
+      { key: "rate" },
+      { key: "movements" },
+      { key: "arrearInterests" },
+      { key: "clientId" },
+      { key: "ownerId" },
+      { key: "paymentFrequency" },
+    ];
+
+    for (const { key } of requiredFields) {
+      const value = object[key];
+      const isEmpty = value === undefined || value === null;
+
+      if (key === "id" || key === "_id") {
+        if (!object.id && !object._id) {
+          throw CustomError.badRequest(`Missing id`);
+        }
+        continue;
+      }
+
+      if (isEmpty) {
+        throw CustomError.badRequest(`Missing ${key}`);
+      }
+    }
+
+    return object;
   }
 }

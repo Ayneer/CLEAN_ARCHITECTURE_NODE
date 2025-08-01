@@ -1,10 +1,9 @@
 import Joi from "joi";
-import { datePattern, getParamsErrorMessages, patternEmail } from "../..";
+import { datePattern, getParamsErrorMessages } from "../..";
 import { Dto } from "../dto";
-import { PayLoanDtoModel, UserDto } from "../../../models";
+import { PayLoanDtoModel } from "../../../models";
 import { DtoUtil } from "../utils/dto_util";
 import {
-  LoanRateType,
   LoanMovementType,
   LoanMovementChannel,
 } from "../../../domain/enum";

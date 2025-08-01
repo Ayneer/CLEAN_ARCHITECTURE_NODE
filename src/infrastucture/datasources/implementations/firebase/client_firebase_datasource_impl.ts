@@ -17,7 +17,7 @@ import { firebaseCollections } from "../../../../drivers/data/firebase/firebase_
 import { ClientMapper } from "../../mappers";
 
 export class ClientFirebaseDatasourceImpl implements ClientRepository {
-  private clientCollection: CollectionReference<DocumentData, DocumentData>;
+  private readonly clientCollection: CollectionReference<DocumentData, DocumentData>;
 
   constructor() {
     this.clientCollection = collection(
