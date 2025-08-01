@@ -1,15 +1,15 @@
 import { CustomError } from "../../../../config/errors/custom.error";
-import { PayLoanDtoModel } from "../../../../models/dto";
 import { DateUtil } from "../../../../utils/date_util";
 import { LoanEntity } from "../../../entities";
-import { LoanMovementType } from "../../../enum";
+import { LoanMovementType, LoanState } from "../../../enum";
 import { LoanArrearInterest } from "../../../interfaces/arrear_interest_interface";
 import { LoanMovement } from "../../../interfaces/loan_movement_interface";
+import { LoanPaymentRequest } from "../../../interfaces/loan_payment_request_interface";
 import { LoanUtils } from "../../utils";
 
 export class InterestPayment {
   public static pay(
-    data: PayLoanDtoModel,
+    data: LoanPaymentRequest,
     loan: LoanEntity
   ): Partial<LoanEntity> {
     const interestAmount = LoanUtils.getInterestAmount(loan);
@@ -25,7 +25,7 @@ export class InterestPayment {
         date: DateUtil.formatDate(new Date()),
         quoteDate: data.date ?? DateUtil.formatDate(new Date()),
         type: LoanMovementType.INFORMATION,
-        movementChannel: data.channel,
+        movementChannel: data.movementChannel,
         description:
           data.description ??
           `Abono a intereses por concepto de: ${data.amount}`,
@@ -48,7 +48,7 @@ export class InterestPayment {
   }
 
   private static getInterestPaymentMovements(
-    data: PayLoanDtoModel,
+    data: LoanPaymentRequest,
     loan: LoanEntity,
     interestAmount: number
   ): { movements: LoanMovement[]; arrearInterests: LoanArrearInterest[] } {
@@ -82,7 +82,7 @@ export class InterestPayment {
         date: DateUtil.formatDate(new Date()),
         quoteDate: interestOlder.date,
         type: LoanMovementType.INTEREST_PAYMENT,
-        movementChannel: data.channel,
+        movementChannel: data.movementChannel,
         description:
           data.description ??
           `Abono a intereses en mora por concepto de: ${movementAmount}`,
@@ -123,7 +123,13 @@ export class InterestPayment {
     });
   }
 
-  private static validatePay(data: PayLoanDtoModel, loan: LoanEntity): void {
+  private static validatePay(data: LoanPaymentRequest, loan: LoanEntity): void {
+    if (loan.state === LoanState.CLOSED) {
+      throw CustomError.badRequest(
+        "PRINCIPAL_PAYMENT",
+        `No puedes abonar a los intereses de un prestamo en estado CERRADO`
+      );
+    }
     if (loan.interestBalance === 0) {
       throw CustomError.badRequest(
         "INTEREST_PAYMENT",

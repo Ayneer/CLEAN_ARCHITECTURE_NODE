@@ -1,7 +1,6 @@
 import { CustomError } from "../../../config/errors/custom.error";
 import { AuthRepository } from "../../../domain/repositories/auth/auth.repository";
 import { SignToken, UserMapperType } from "../../../utils/types_util";
-import { UserEntity } from "../../entities/user.entity";
 import { UseCaseInterface } from "../../interfaces/use_case_interface";
 import { UserTokenModel } from "../../../models/user_token_model";
 import { UserDto } from "../../../models";
@@ -9,8 +8,8 @@ import { UserMapper } from "../../../infrastucture";
 import { BcryptAdapter } from "../../../config";
 
 export class RegisterUser implements UseCaseInterface<UserDto, UserTokenModel> {
-  private userMapper: UserMapperType = UserMapper.userEntityFromObject;
-  private hashPassword = BcryptAdapter.generateBcryptHash;
+  private readonly userMapper: UserMapperType = UserMapper.userEntityFromObject;
+  private readonly hashPassword = BcryptAdapter.generateBcryptHash;
 
   constructor(
     private readonly authRepository: AuthRepository,

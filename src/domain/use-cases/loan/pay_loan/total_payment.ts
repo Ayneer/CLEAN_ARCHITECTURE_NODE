@@ -1,12 +1,12 @@
 import { CustomError } from "../../../../config/errors/custom.error";
-import { PayLoanDtoModel } from "../../../../models/dto";
 import { DateUtil } from "../../../../utils/date_util";
 import { LoanEntity } from "../../../entities";
-import { LoanMovementType } from "../../../enum";
+import { LoanMovementType, LoanState } from "../../../enum";
+import { LoanPaymentRequest } from "../../../interfaces/loan_payment_request_interface";
 
 export class TotalPayment {
   public static pay(
-    data: PayLoanDtoModel,
+    data: LoanPaymentRequest,
     loan: LoanEntity
   ): Partial<LoanEntity> {
     this.validatePay(data, loan);
@@ -22,7 +22,7 @@ export class TotalPayment {
           date: DateUtil.formatDate(new Date()),
           quoteDate: data.date ?? DateUtil.formatDate(new Date()),
           type: LoanMovementType.TOTAL_PAYMENT,
-          movementChannel: data.channel,
+          movementChannel: data.movementChannel,
           description:
             data.description ?? `Pago total por concepto de: ${data.amount}`,
         },
@@ -31,7 +31,13 @@ export class TotalPayment {
     };
   }
 
-  private static validatePay(data: PayLoanDtoModel, loan: LoanEntity): void {
+  private static validatePay(data: LoanPaymentRequest, loan: LoanEntity): void {
+    if (loan.state === LoanState.CLOSED) {
+      throw CustomError.badRequest(
+        "PRINCIPAL_PAYMENT",
+        `No puedes pagar el total de un prestamo en estado CERRADO`
+      );
+    }
     if (data.amount !== loan.balance) {
       throw CustomError.badRequest(
         "TOTAL_PAYMENT",
