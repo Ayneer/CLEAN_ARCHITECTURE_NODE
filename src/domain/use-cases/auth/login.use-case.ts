@@ -1,5 +1,4 @@
-import { BcryptAdapter, JsonWebToken } from "../../../config";
-import { LoginUserDto, RegisterUserDto } from "../../../config/dtos/auth";
+import { BcryptAdapter } from "../../../config";
 import { CustomError } from "../../../config/errors/custom.error";
 import { AuthRepository } from "../../../domain/repositories/auth/auth.repository";
 import { UserLoginDtoModel } from "../../../models/dto";
@@ -8,8 +7,8 @@ import { SignToken } from "../../../utils/types_util";
 import { UseCaseInterface } from "../../interfaces/use_case_interface";
 
 export class LoginUser implements UseCaseInterface<UserLoginDtoModel, UserTokenModel> {
-  private hashPassword = BcryptAdapter.generateBcryptHash;
-  private comparePassword = BcryptAdapter.compareBcryptHash;
+  private readonly hashPassword = BcryptAdapter.generateBcryptHash;
+  private readonly comparePassword = BcryptAdapter.compareBcryptHash;
   
   constructor(
     private readonly authRepository: AuthRepository,

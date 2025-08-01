@@ -1,21 +1,13 @@
-import { LoanMovementChannel, LoanMovementType } from "../../../domain";
+import { LoanPaymentRequest } from "../../../domain/interfaces/loan_payment_request_interface";
 
 export class PayLoanDtoModel {
   loanId: string;
   ownerId: string;
-  amount: number;
-  date?: string; //YYYY-MM-DD
-  type: LoanMovementType;
-  channel: LoanMovementChannel;
-  description?: string;
+  payments: LoanPaymentRequest[];
 
   constructor(props: PayLoanDtoModel) {
     this.loanId = props.loanId;
     this.ownerId = props.ownerId;
-    this.amount = props.amount;
-    this.date = props.date;
-    this.type = props.type;
-    this.channel = props.channel;
-    this.description = props.description;
+    this.payments = props.payments;
   }
 }

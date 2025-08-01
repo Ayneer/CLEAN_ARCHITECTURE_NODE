@@ -1,12 +1,12 @@
 import { CustomError } from "../../../../config/errors/custom.error";
-import { PayLoanDtoModel } from "../../../../models/dto";
 import { DateUtil } from "../../../../utils/date_util";
 import { LoanEntity } from "../../../entities";
-import { LoanMovementType } from "../../../enum";
+import { LoanMovementType, LoanState } from "../../../enum";
+import { LoanPaymentRequest } from "../../../interfaces/loan_payment_request_interface";
 
 export class QuotaPayment {
   public static pay(
-    data: PayLoanDtoModel,
+    data: LoanPaymentRequest,
     loan: LoanEntity
   ): Partial<LoanEntity> {
     this.validatePay(data, loan);
@@ -23,7 +23,7 @@ export class QuotaPayment {
           date: DateUtil.formatDate(new Date()),
           quoteDate: data.date ?? DateUtil.formatDate(new Date()),
           type: LoanMovementType.QUOTA_PAYMENT,
-          movementChannel: data.channel,
+          movementChannel: data.movementChannel,
           description:
             data.description ?? `Pago de cuota por concepto de: ${data.amount}`,
         },
@@ -32,7 +32,13 @@ export class QuotaPayment {
     };
   }
 
-  private static validatePay(data: PayLoanDtoModel, loan: LoanEntity): void {
+  private static validatePay(data: LoanPaymentRequest, loan: LoanEntity): void {
+    if (loan.state === LoanState.CLOSED) {
+      throw CustomError.badRequest(
+        "PRINCIPAL_PAYMENT",
+        `No puedes pagar una cuota de un prestamo en estado CERRADO`
+      );
+    }
     if (loan.arrearInterests.length > 1) {
       throw CustomError.badRequest(
         "QUOTA_PAYMENT",
