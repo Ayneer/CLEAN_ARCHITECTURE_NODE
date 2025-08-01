@@ -1,8 +1,8 @@
-import express, { Router } from "express";
-import { ErrorControllerHanlder } from "../API/middlewares/error.handler";
+import express from "express";
+import { ErrorControllerHanlder } from "../API/middlewares/error_handler";
 import { DataBase } from "../drivers/interfaces/database_interface";
 import { ServerInterface } from "./interfaces/server_interface";
-import { AppRoutes } from "../API/routes/routes";
+import { AppRoutes } from "../API/routes/app_route";
 
 export class Server {
   public readonly app = express();
