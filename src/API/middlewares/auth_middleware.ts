@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { CustomError, ErrorModel } from "../../config";
+import { CustomError } from "../../config";
 import { AuthRepository } from "../../domain/repositories/auth/auth.repository";
 import { UserEntity } from "../../domain";
 import { Dto } from "../../config/dtos/dto";
@@ -18,14 +18,14 @@ export class AuthMiddleware {
     try {
       const header = req.header("Authorization");
 
-      if (!header || !header.startsWith("Bearer "))
+      if (!header?.startsWith("Bearer "))
         throw CustomError.unauthorized(
           "You do not have permition to see this - Bearer"
         );
 
       const token = header.split(" ").at(1)?.trim() ?? "";
       const data = await this.validateToken<{ id: string }>(token);
-      if (!token || !data || !data.id)
+      if (!token || !data?.id)
         throw CustomError.unauthorized(
           "You do not have permition to see this - token"
         );
@@ -58,32 +58,12 @@ export class AuthMiddleware {
     next: NextFunction
   ) => {
     try {
-      const [error, detail, registerUserDto] = this.registerUserDto!.validate(
+      const [error, registerUserDto] = this.registerUserDto!.validate(
         req.body
       );
       if (error) {
         res.status(400).json(error);
       }
-
-      const userLogged = req.body.user as Partial<UserEntity>;
-
-      // if (
-      //   (registerUserDto?.roles?.some((role) =>
-      //     ["ADMIN_ROLE"].includes(role)
-      //   ) &&
-      //     !userLogged.role?.includes("SUPER_ADMIN")) ||
-      //   ((registerUserDto?.roles?.some((role) =>
-      //     ["USER_ROLE"].includes(role)
-      //   ) ||
-      //     !registerUserDto?.roles) &&
-      //     !userLogged.role?.some((role) =>
-      //       ["ADMIN_ROLE", "SUPER_ADMIN"].includes(role)
-      //     ))
-      // ) {
-      //   throw CustomError.unauthorized(
-      //     "You do not have permition to see this - Create User"
-      //   );
-      // }
 
       req.body.registerUserDto = registerUserDto;
 
