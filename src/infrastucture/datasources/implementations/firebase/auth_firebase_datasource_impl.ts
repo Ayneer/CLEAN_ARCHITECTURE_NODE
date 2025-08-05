@@ -56,14 +56,13 @@ export class AuthFirebaseDatasourceImpl implements AuthRepository {
   }
 
   async createUser(
-    registerUserDto: UserDto,
-    fielsToDelete?: (keyof UserEntity)[]
+    registerUser: Partial<UserEntity>
   ): Promise<UserEntity> {
-    const snapShot = await addDoc(this.userCollection, registerUserDto);
+    console.log(registerUser);
+    const snapShot = await addDoc(this.userCollection, registerUser);
     const newUser = await getDoc(doc(this.userCollection, snapShot.id));
     return this.userMapper(
-      { ...newUser.data(), id: snapShot.id },
-      fielsToDelete
+      { ...newUser.data(), id: snapShot.id }
     );
   }
 

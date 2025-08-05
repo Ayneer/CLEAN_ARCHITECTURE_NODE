@@ -16,6 +16,9 @@ export class RegisterUserDto extends Dto<UserDto> {
       name: Joi.string()
         .required()
         .messages(getParamsErrorMessages("user_name")),
+      lastName: Joi.string()
+        .required()
+        .messages(getParamsErrorMessages("user_last_name")),
       email: Joi.string()
         .regex(patternEmail)
         .required()
@@ -26,7 +29,6 @@ export class RegisterUserDto extends Dto<UserDto> {
       role: Joi.string()
         .valid("USER_ROLE", "ADMIN_ROLE")
         .messages(getParamsErrorMessages("user_role")),
-      img: Joi.string().messages(getParamsErrorMessages("user_img")),
     })
       .unknown(false)
       .messages(getParamsErrorMessages("user_object"));
@@ -40,11 +42,11 @@ export class RegisterUserDto extends Dto<UserDto> {
         undefined,
       ];
     } else {
-      const { name, email, password, role, img } = object;
+      const { name, email, password, role, lastName } = object;
       return [
         undefined,
         undefined,
-        new UserDto({ name, email, password, role, img }),
+        new UserDto({ name, email, password, role, lastName }),
       ];
     }
   }

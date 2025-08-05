@@ -1,4 +1,3 @@
-import { PartialSchemaMap } from "joi";
 import { CustomError } from "../../../config";
 import { UserEntity } from "../../../domain";
 
@@ -7,10 +6,11 @@ export class UserMapper {
     object: { [key: string]: any },
     fielsToDelete: (keyof UserEntity)[] = []
   ): UserEntity {
-    const { id, _id, name, email, password, role, img } = object;
+    const { id, _id, name, lastName, email, password, role, img } = object;
 
     if (!id && !_id) throw CustomError.badRequest("Missing id");
     if (!name) throw CustomError.badRequest("Missing name");
+    if (!lastName) throw CustomError.badRequest("Missing lastName");
     if (!email) throw CustomError.badRequest("Missing email");
     if (!password) throw CustomError.badRequest("Missing password");
     if (!role) throw CustomError.badRequest("Missing role");
@@ -19,6 +19,7 @@ export class UserMapper {
     const newUser: UserEntity = new UserEntity({
       id: id || _id,
       name,
+      lastName,
       email,
       password,
       role,
@@ -35,10 +36,11 @@ export class UserMapper {
   static userEntityWitouPasswordFromObject(object: {
     [key: string]: any;
   }): UserEntity {
-    const { id, _id, name, email, password, role } = object;
+    const { id, _id, name, lastName, email, password, role } = object;
 
     if (!id || !_id) throw CustomError.badRequest("Missing id");
     if (!name) throw CustomError.badRequest("Missing name");
+    if (!lastName) throw CustomError.badRequest("Missing lastName");
     if (!email) throw CustomError.badRequest("Missing email");
     if (!password) throw CustomError.badRequest("Missing password");
     if (!role) throw CustomError.badRequest("Missing role");
@@ -46,6 +48,7 @@ export class UserMapper {
     return new UserEntity({
       id: id || _id,
       name,
+      lastName,
       email,
       password,
       role,

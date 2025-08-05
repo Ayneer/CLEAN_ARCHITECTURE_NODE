@@ -1,14 +1,12 @@
 import { CustomError } from "../../../config/errors/custom.error";
 import { AuthRepository } from "../../../domain/repositories/auth/auth.repository";
-import { SignToken, UserMapperType } from "../../../utils/types_util";
+import { SignToken } from "../../../utils/types_util";
 import { UseCaseInterface } from "../../interfaces/use_case_interface";
 import { UserTokenModel } from "../../../models/user_token_model";
 import { UserDto } from "../../../models";
-import { UserMapper } from "../../../infrastucture";
 import { BcryptAdapter } from "../../../config";
 
 export class RegisterUser implements UseCaseInterface<UserDto, UserTokenModel> {
-  private readonly userMapper: UserMapperType = UserMapper.userEntityFromObject;
   private readonly hashPassword = BcryptAdapter.generateBcryptHash;
 
   constructor(
@@ -21,7 +19,7 @@ export class RegisterUser implements UseCaseInterface<UserDto, UserTokenModel> {
       //Verify if the user exists
       const userExist = await this.authRepository.getUserByEmail(data.email);
       if (userExist) {
-        throw CustomError.badRequest("User already exists");
+        throw CustomError.badRequest("Ya existe el usuario");
       }
 
       //Register the user
@@ -30,9 +28,8 @@ export class RegisterUser implements UseCaseInterface<UserDto, UserTokenModel> {
           ...data,
           password: this.hashPassword(data.password),
           role: data.role ?? "ADMIN_ROLE",
-          img: data.img ?? "DEFAULT_IMG_URL",
-        },
-        ["password"]
+          img: "DEFAULT_IMG_URL",
+        }
       );
 
       //Create a token for the user
@@ -43,7 +40,12 @@ export class RegisterUser implements UseCaseInterface<UserDto, UserTokenModel> {
       return new UserTokenModel({
         token,
         user: {
-          ...newUser,
+          id: newUser.id,
+          name: newUser.name,
+          lastName: newUser.lastName,
+          email: newUser.email,
+          role: newUser.role,
+          img: newUser.img,
         },
       });
     } catch (error) {
